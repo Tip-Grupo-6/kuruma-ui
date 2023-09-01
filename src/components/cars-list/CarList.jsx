@@ -32,7 +32,7 @@ export const CarList = () => {
 
     return (
         <div className={classes.cardList}>
-            {cars.map(car => (
+            {cars?.map(car => (
                 <CarItem key={`car-${car.id}`} car={car}/>
             ))}
         </div>

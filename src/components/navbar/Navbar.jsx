@@ -16,6 +16,13 @@ const styles = makeStyles(theme => ({
         backgroundColor: "var(--color-white) !important",
         color: "#000000 !important"
     },
+    nameApp: {
+        "textTransform": "lowercase",
+        "fontFamily": "Raleway, sans-serif",
+        "fontWeight": "bold",
+        "display": "flex",
+        "alignItems": "center"
+    },
     iconContainer: {
         display: "flex",
         justifyContent: "center",
@@ -56,7 +63,11 @@ export default function Navbar() {
                         <MenuIcon />
                     </IconButton>
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1 }} className={classes.iconContainer}>
-                        <Link to={"/"} style={{height: "96px", width: "96px"}}>
+
+                        <Link to={"/"} style={{height: "96px", width: "96px", textDecoration: "none", display: "flex", color: "inherit"}}>
+                            <div className={classes.nameApp}>
+                                Kuruma
+                            </div>
                             <img src={"icon.png"} alt={"icon"} className={classes.icon}/>
                         </Link>
                     </Typography>

@@ -60,9 +60,9 @@ export const CarItem = ({car}) => {
     return (
         <Link to={`/car/${car.id}`} className={classes.card}>
             <div className={classes.cardImageContainer}>
-                <img src={car.url} alt={car.name} className={classes.cardImage}/>
+                <img src={`/images/${car.image}`} alt={car.name} className={classes.cardImage}/>
             </div>
-            <h3 className={classes.cardTitle}>{car.name}</h3>
+            <h3 className={classes.cardTitle}>{car.brand} {car.model}</h3>
         </Link>
     )
 }
