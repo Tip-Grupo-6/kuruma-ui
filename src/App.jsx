@@ -6,15 +6,22 @@ import './styles/global-styles.css'
 
 import {CarList} from "./components/cars-list/CarList";
 import Navbar from "./components/navbar/Navbar";
+import {Route, Routes} from "react-router-dom";
+import {CarPage} from "./components/car-page/CarPage";
+
 
 const App = () => {
 
     return (
         <div>
             <Navbar />
-            <CarList/>
+            <Routes>
+                <Route path="/" element={<CarList/>} />
+                <Route path="/car/:id" element={<CarPage/>} />
+            </Routes>
         </div>
-    );
+
+);
 }
 
 export default App;

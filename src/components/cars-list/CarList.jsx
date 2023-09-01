@@ -33,7 +33,7 @@ export const CarList = () => {
     return (
         <div className={classes.cardList}>
             {cars.map(car => (
-                <CarItem key={`car-${car.id}`} name={car.name} urlImage={car.url} />
+                <CarItem key={`car-${car.id}`} car={car}/>
             ))}
         </div>
     )

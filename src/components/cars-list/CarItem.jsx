@@ -1,4 +1,5 @@
 import {makeStyles} from "@material-ui/core/styles";
+import {Link} from "react-router-dom";
 
 const styles = makeStyles(theme => ({
     card: {
@@ -8,6 +9,8 @@ const styles = makeStyles(theme => ({
         backgroundColor: "#FFFFFF",
         padding: "10px",
         borderRadius: "5px",
+        color: "inherit",
+        textDecoration: "inherit",
         [theme.breakpoints.up("sm")]: {
             flexDirection: "column",
             height: "216px"
@@ -51,15 +54,15 @@ const styles = makeStyles(theme => ({
     }
 }));
 
-export const CarItem = ({name, urlImage}) => {
+export const CarItem = ({car}) => {
     const classes = styles()
 
     return (
-        <div className={classes.card}>
+        <Link to={`/car/${car.id}`} className={classes.card}>
             <div className={classes.cardImageContainer}>
-                <img src={urlImage} alt={name} className={classes.cardImage}/>
+                <img src={car.url} alt={car.name} className={classes.cardImage}/>
             </div>
-            <h3 className={classes.cardTitle}>{name}</h3>
-        </div>
+            <h3 className={classes.cardTitle}>{car.name}</h3>
+        </Link>
     )
 }

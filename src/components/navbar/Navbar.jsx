@@ -9,6 +9,7 @@ import AccountCircle from '@mui/icons-material/AccountCircle';
 import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
 import {makeStyles} from "@material-ui/core/styles";
+import {Link} from "react-router-dom";
 
 const styles = makeStyles(theme => ({
     appbar: {
@@ -55,7 +56,9 @@ export default function Navbar() {
                         <MenuIcon />
                     </IconButton>
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1 }} className={classes.iconContainer}>
-                        <img src={"icon.png"} alt={"icon"} className={classes.icon}/>
+                        <Link to={"/"} style={{height: "96px", width: "96px"}}>
+                            <img src={"icon.png"} alt={"icon"} className={classes.icon}/>
+                        </Link>
                     </Typography>
                     <div>
                         <IconButton
