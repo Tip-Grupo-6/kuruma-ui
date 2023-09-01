@@ -1,3 +1,9 @@
+:root {
+    --color-gray: rgb(242, 243, 248);
+    --color-white: #FFFFFF;
+}
+
+
 body {
-    background-color: #023F80;
+    background-color: var(--color-gray);
 }
