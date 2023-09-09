@@ -17,11 +17,22 @@ const styles = makeStyles(theme => ({
         color: "#000000 !important"
     },
     nameApp: {
-        "textTransform": "lowercase",
-        "fontFamily": "Raleway, sans-serif",
+        "fontFamily": "Altone Trial, Raleway, sans-serif",
+        "textTransform": "uppercase",
         "fontWeight": "bold",
         "display": "flex",
         "alignItems": "center"
+    },
+    linkIcon: {
+        display: "flex",
+        justifyContent: "center",
+        height: "96px",
+        width: "96px",
+        textDecoration: "none",
+        color: "inherit",
+        [theme.breakpoints.up("sm")]: {
+            justifyContent: "normal",
+        }
     },
     iconContainer: {
         display: "flex",
@@ -64,7 +75,7 @@ export default function Navbar() {
                     </IconButton>
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1 }} className={classes.iconContainer}>
 
-                        <Link to={"/"} style={{height: "96px", width: "96px", textDecoration: "none", display: "flex", color: "inherit"}}>
+                        <Link to={"/"} className={classes.linkIcon}>
                             <div className={classes.nameApp}>
                                 Kuruma
                             </div>

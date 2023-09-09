@@ -1,12 +1,25 @@
-import {useParams} from "react-router-dom";
 import {makeStyles} from "@material-ui/core/styles";
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
+import {AnimatedCard} from "./AnimatedCard";
+import {useParams} from "react-router-dom";
 import {fetchCarById} from "../../services/CarService";
-import WaterDamageIcon from '@mui/icons-material/WaterDamage';
+import {
+    Alert, AlertTitle,
+    Paper,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableRow,
+} from "@mui/material";
+
+import WaterDropIcon from '@mui/icons-material/WaterDrop';
 import LocalGasStationIcon from '@mui/icons-material/LocalGasStation';
 import TireRepairIcon from '@mui/icons-material/TireRepair';
-import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
-import {List, ListItem, ListItemButton, ListItemIcon, ListItemText} from "@mui/material";
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import CancelIcon from '@mui/icons-material/Cancel';
+import {StatusAlert} from "./StatusAlert";
+
 
 const styles = makeStyles(theme => ({
     card: {
@@ -19,76 +32,107 @@ const styles = makeStyles(theme => ({
         borderRadius: "5px",
         padding: "20px",
         margin: "20px",
+    },
+    carStatus: {
+        display: "flex",
+        flexDirection: "column-reverse",
         [theme.breakpoints.up("sm")]: {
-            display: "grid",
-            gridTemplateColumns: "2fr 1fr",
+            display: "block",
         }
     },
-    carrousel: {
-        display: "flex",
-        justifyContent: "center"
+    statusTable: {
+        right: "70px",
+        [theme.breakpoints.up("sm")]: {
+            position: "absolute",
+            paddingTop: "25px"
+        }
     },
-    cardImage: {
-        width: "auto",
-        height: "471px",
-        borderRadius: "5px"
+    tableBody: {
+        display: "flex !important",
+        [theme.breakpoints.up("sm")]: {
+            display: "block !important"
+        }
     },
-    carTitle: {
-        display: "flex",
-        alignItems: "center",
-        marginTop: "0"
+    tableRow: {
+        "&:not(:last-child)": {
+            borderRight: "2px solid rgb(210, 210, 210)",
+        },
+        [theme.breakpoints.up("sm")]: {
+            "&:not(:last-child)": {
+                borderRight: 0,
+            },
+            '&:last-child td, &:last-child th': {
+                border: 0
+            }
+        }
     }
 }))
 
-export const CarPage = () => {
+export const CarPage = (props) => {
     const classes = styles()
     const { id } = useParams();
-    const [ car, setCar] = useState([])
+    const [ car, setCar] = useState(null)
+    const [ status, setStatus] = useState(null)
+    const [open, setOpen] = useState(false);
 
     useEffect(() => {
+        if(!id) {
+            setCar(null)
+        }
         fetchCarById(id).then(data => {
-            setCar(data)
-        })
+            if(!data.status) {
+                setCar(data)
+            }
+        }).catch(e => console.log(e))
     }, [id])
 
+    const getDataMaintenance = () => {
+        return [
+            { name: "aceite", status: !car.maintenance_values?.oil_change_due, component: <LocalGasStationIcon />,
+                last_change: car.last_oil_change, next_change_due: car.maintenance_values?.next_oil_change_due},
 
+            { name: "agua", status: !car.maintenance_values?.water_check_due, component: <WaterDropIcon />,
+                last_change: car.last_water_check, next_change_due: car.maintenance_values?.next_water_check_due},
+
+            { name: "presión de los neumáticos", status: !car.maintenance_values?.tire_pressure_check_due, component: <TireRepairIcon />,
+                last_change: car.last_tire_pressure_check, next_change_due: car.maintenance_values?.next_tire_pressure_check_due},
+        ]
+    }
+
+    const openAlert = (status) => {
+        setOpen(true)
+        setStatus(status)
+    }
 
     return (
         <div className={classes.card}>
-            <div className={classes.carrousel}>
-                {/*<img src={"/images/peugeot_208_perfil.jpg"} alt={"peugeot 208"} className={classes.cardImage}/>*/}
-                <img src={`/images/${car.image}`} alt={"peugeot 208"} className={classes.cardImage}/>
+            {car && (
+            <div className={classes.carStatus}>
+                <StatusAlert status={status} open={open} onClose={() => setOpen(false)}/>
+                <div className={classes.statusTable}>
+                    <TableContainer component={Paper} >
+                        <Table  aria-label="simple table">
+                            <TableBody className={classes.tableBody}>
+                                {getDataMaintenance().map((row) => (
+                                    <TableRow key={row.name}
+                                        className={classes.tableRow}
+                                        onClick={() => openAlert(row)}
+                                    >
+                                        <TableCell component="th" scope="row">{row.component}</TableCell>
+                                        <TableCell align="right">
+                                            {row.status
+                                                ? <CheckCircleOutlineIcon style={{color: "green"}}/>
+                                                : <CancelIcon style={{color: "red"}}/> }
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                </div>
             </div>
-            <div style={{padding: "10px"}}>
-                <h1 className={classes.carTitle}>{car.brand} {car.model}<DirectionsCarIcon fontSize={'large'} style={{marginLeft: "10px", color: car.car_status}}/></h1>
-                <h2 style={{marginTop: 0}}>{car.years}</h2>
-                <List>
-                    <ListItem disablePadding>
-                        <ListItemButton>
-                            <ListItemIcon>
-                                <WaterDamageIcon fontSize={'large'} style={{color: car.car_status}}/>
-                            </ListItemIcon>
-                            <ListItemText primary="Cambio de agua" />
-                        </ListItemButton>
-                    </ListItem>
-                    <ListItem disablePadding>
-                        <ListItemButton>
-                            <ListItemIcon>
-                                <LocalGasStationIcon fontSize={'large'} style={{color: car.car_status}}/>
-                            </ListItemIcon>
-                            <ListItemText primary="Cambio de aceite" />
-                        </ListItemButton>
-                    </ListItem>
-                    <ListItem disablePadding>
-                        <ListItemButton >
-                            <ListItemIcon>
-                                <TireRepairIcon fontSize={'large'} style={{color: car.car_status}}/>
-                            </ListItemIcon>
-                            <ListItemText primary="Ruedas" />
-                        </ListItemButton>
-                    </ListItem>
-                </List>
-            </div>
+            )}
+            <AnimatedCard car={car} />
         </div>
     )
 }

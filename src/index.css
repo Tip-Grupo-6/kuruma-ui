@@ -11,3 +11,13 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+@font-face {
+  font-family: 'Altone Trial';
+  src: local('Altone Trial'), url("/public/assets/fonts/AltoneTrial-Regular.ttf") format('truetype');
+}
+
+@font-face {
+  font-family: 'Altone Trial';
+  src: local('Altone Trial'), url("/public/assets/fonts/AltoneTrial-Bold.ttf") format('truetype');
+}
