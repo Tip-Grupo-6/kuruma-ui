@@ -117,6 +117,7 @@ export const CarPage = (props) => {
                                     <TableRow key={row.name}
                                         className={classes.tableRow}
                                         onClick={() => openAlert(row)}
+                                        style={{cursor: "pointer"}}
                                     >
                                         <TableCell component="th" scope="row">{row.component}</TableCell>
                                         <TableCell align="right">
