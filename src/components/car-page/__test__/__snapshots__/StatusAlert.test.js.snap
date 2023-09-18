@@ -6,6 +6,7 @@ exports[`status alert should match with snapshot 1`] = `
 >
   <div
     className="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-bz4dnt-MuiCollapse-root"
+    data-testid="collapse"
     style={
       {
         "minHeight": "0px",
@@ -20,6 +21,7 @@ exports[`status alert should match with snapshot 1`] = `
       >
         <div
           className="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 MuiAlert-root MuiAlert-standardError MuiAlert-standard makeStyles-statusAlert-2 css-1hdyuqk-MuiPaper-root-MuiAlert-root"
+          data-testid="alert"
           role="alert"
         >
           <div

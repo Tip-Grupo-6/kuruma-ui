@@ -2,7 +2,7 @@ import Box from "@mui/material/Box";
 import {Alert, AlertTitle, Collapse} from "@mui/material";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from '@mui/icons-material/Close';
-import React, {useState} from "react";
+import React from "react";
 import {makeStyles} from "@material-ui/core/styles";
 
 const styles = makeStyles(theme => ({
@@ -20,12 +20,11 @@ const styles = makeStyles(theme => ({
 
 export const StatusAlert = ({status, open, onClose}) => {
     const classes = styles()
-    // const [open, setOpen] = useState(true);
 
     return (
         <Box sx={{ width: '100%' }} className={classes.boxAlert}>
-            <Collapse in={open}>
-                <Alert severity={status?.status? "success": "error"} className={classes.statusAlert} action={
+            <Collapse in={open} data-testid={"collapse"}>
+                <Alert data-testid={"alert"} severity={status?.status? "success": "error"} className={classes.statusAlert} action={
                     <IconButton
                         aria-label="close"
                         color="inherit"
