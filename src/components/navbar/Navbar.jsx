@@ -75,7 +75,7 @@ export default function Navbar() {
                     </IconButton>
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1 }} className={classes.iconContainer}>
 
-                        <Link to={"/"} className={classes.linkIcon}>
+                        <Link reloadDocument to={"/"} className={classes.linkIcon}>
                             <div className={classes.nameApp}>
                                 Kuruma
                             </div>
