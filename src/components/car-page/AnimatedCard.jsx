@@ -6,6 +6,7 @@ import {GLTFLoader} from "three/addons/loaders/GLTFLoader";
 import {RGBELoader} from "three/addons/loaders/RGBELoader";
 import {DRACOLoader} from "three/addons/loaders/DRACOLoader";
 import {makeStyles} from "@material-ui/core/styles";
+import {TIRE_PRESSURE} from "../../constants/CarItemConst";
 
 
 let camera, scene, renderer;
@@ -52,10 +53,10 @@ export const AnimatedCard = ({car}) => {
     useEffect(() => {
         if(car) {
             bodyMaterial = new THREE.MeshPhysicalMaterial({
-                color: car.color?.toLowerCase(), metalness: 1.0, roughness: 0.5, clearcoat: 1.0, clearcoatRoughness: 0.03
+                color: car.color, metalness: 1.0, roughness: 0.5, clearcoat: 1.0, clearcoatRoughness: 0.03
             });
 
-            const wheelColor = !car.maintenance_values.tire_pressure_check_due ? "green" : "red";
+            const wheelColor = !car.maintenance_values.find(car_item => car_item.code === TIRE_PRESSURE)?.due_status ? "green" : "red";
             wheelsMaterial = new THREE.MeshPhysicalMaterial({
                 color: wheelColor, metalness: 1.0, roughness: 0.5, clearcoat: 1.0, clearcoatRoughness: 0.03
             });

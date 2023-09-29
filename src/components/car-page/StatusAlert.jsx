@@ -22,9 +22,9 @@ export const StatusAlert = ({status, open, onClose}) => {
     const classes = styles()
 
     return (
-        <Box sx={{ width: '100%' }} className={classes.boxAlert}>
+        <Box sx={{ width: '100%' }} className={(open ? `${classes.boxAlert}` : '')}>
             <Collapse in={open} data-testid={"collapse"}>
-                <Alert data-testid={"alert"} severity={status?.status? "success": "error"} className={classes.statusAlert} action={
+                <Alert data-testid={"alert"} severity={!status?.due_status? "success": "error"} className={classes.statusAlert} action={
                     <IconButton
                         aria-label="close"
                         color="inherit"

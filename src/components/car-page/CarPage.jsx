@@ -4,21 +4,20 @@ import {AnimatedCard} from "./AnimatedCard";
 import {useParams} from "react-router-dom";
 import {fetchCarById} from "../../services/CarService";
 import {
-    Alert, AlertTitle,
+    Button,
     Paper,
     Table,
     TableBody,
     TableCell,
     TableContainer,
-    TableRow,
+    TableRow
 } from "@mui/material";
 
-import WaterDropIcon from '@mui/icons-material/WaterDrop';
-import LocalGasStationIcon from '@mui/icons-material/LocalGasStation';
-import TireRepairIcon from '@mui/icons-material/TireRepair';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import CancelIcon from '@mui/icons-material/Cancel';
 import {StatusAlert} from "./StatusAlert";
+import {CarModalForm} from "./CarModalForm";
+import {getIconByCode} from "../../utils/MaintenanceItemsUtils";
 
 
 const styles = makeStyles(theme => ({
@@ -74,29 +73,25 @@ export const CarPage = (props) => {
     const [ car, setCar] = useState(null)
     const [ status, setStatus] = useState(null)
     const [open, setOpen] = useState(false);
+    const [openModal, setOpenModal] = React.useState(false);
 
     useEffect(() => {
         if(!id) {
             setCar(null)
         }
-        fetchCarById(id).then(data => {
-            if(!data.status) {
-                setCar(data)
-            }
-        }).catch(e => console.log(e))
+        if(id) {
+            fetchCarById(id).then(data => {
+                if(!data.status) {
+                    setCar(data)
+                }
+            }).catch(e => console.log(e))
+        }
     }, [id])
 
-    const getDataMaintenance = () => {
-        return [
-            { name: "aceite", status: !car.maintenance_values?.oil_change_due, component: <LocalGasStationIcon />,
-                last_change: car.last_oil_change, next_change_due: car.maintenance_values?.next_oil_change_due},
-
-            { name: "agua", status: !car.maintenance_values?.water_check_due, component: <WaterDropIcon />,
-                last_change: car.last_water_check, next_change_due: car.maintenance_values?.next_water_check_due},
-
-            { name: "presión de los neumáticos", status: !car.maintenance_values?.tire_pressure_check_due, component: <TireRepairIcon />,
-                last_change: car.last_tire_pressure_check, next_change_due: car.maintenance_values?.next_tire_pressure_check_due},
-        ]
+    const getMaintenanceData = () => {
+        return car?.maintenance_values.map(car_item => {
+            return { ...car_item, component: getIconByCode(car_item.code) }
+        }) || []
     }
 
     const openAlert = (status) => {
@@ -104,16 +99,27 @@ export const CarPage = (props) => {
         setStatus(status)
     }
 
+    const openFormModal = () => {
+        setOpen(false)
+        setOpenModal(true)
+    }
+
     return (
         <div className={classes.card}>
-            {car && (
             <div className={classes.carStatus}>
+                { car && (
                 <StatusAlert status={status} open={open} onClose={() => setOpen(false)}/>
+                )}
                 <div className={classes.statusTable}>
+                    <Button variant="outlined" onClick={openFormModal} style={{marginBottom: '5px', width: "100%"}}>
+                        {car ? "Editar" : "Nuevo"}
+                    </Button>
+                    <CarModalForm car={car} open={openModal} closeModal={() => setOpenModal(false)} />
+
                     <TableContainer component={Paper} >
                         <Table  aria-label="simple table">
                             <TableBody className={classes.tableBody}>
-                                {getDataMaintenance().map((row) => (
+                                {getMaintenanceData().map((row) => (
                                     <TableRow key={row.name}
                                         className={classes.tableRow}
                                         onClick={() => openAlert(row)}
@@ -121,7 +127,7 @@ export const CarPage = (props) => {
                                     >
                                         <TableCell component="th" scope="row">{row.component}</TableCell>
                                         <TableCell align="right">
-                                            {row.status
+                                            {!row.due_status
                                                 ? <CheckCircleOutlineIcon style={{color: "green"}}/>
                                                 : <CancelIcon style={{color: "red"}}/> }
                                         </TableCell>
@@ -132,7 +138,6 @@ export const CarPage = (props) => {
                     </TableContainer>
                 </div>
             </div>
-            )}
             <AnimatedCard car={car} />
         </div>
     )
