@@ -123,6 +123,7 @@ export const CarModalForm = ({car, open, closeModal}) => {
         fetchMaintenanceItems().then(data => {
             setMaintenanceItems(data)
         })
+        .catch((e) => console.log(e))
     }, [])
 
     const convertData = () => {
