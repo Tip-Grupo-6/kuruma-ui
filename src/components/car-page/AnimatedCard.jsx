@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-import {useEffect, useState} from "react";
+import {useContext, useEffect, useState} from "react";
 import { OrbitControls } from 'three/addons/controls/OrbitControls';
 import {GLTFLoader} from "three/addons/loaders/GLTFLoader";
 import {RGBELoader} from "three/addons/loaders/RGBELoader";
@@ -8,6 +8,7 @@ import {DRACOLoader} from "three/addons/loaders/DRACOLoader";
 import {makeStyles} from "@material-ui/core/styles";
 import {OIL, TIRE_PRESSURE, WATER} from "../../constants/CarItemConst";
 import {MathUtils} from "three";
+import {MaintenanceItemContext} from "./CarPage";
 
 
 let camera, scene, renderer;
@@ -37,7 +38,7 @@ const styles = makeStyles(theme => ({
 
 export const AnimatedCard = ({car}) => {
 
-    const [openHood, setOpenHood] = useState(false)
+    const { maintenanceItemSelected } = useContext(MaintenanceItemContext)
     const classes = styles()
 
     useEffect(() => {
@@ -52,53 +53,69 @@ export const AnimatedCard = ({car}) => {
                 color: car.color
             });
 
-            const wheelColor = !car.maintenance_values.find(car_item => car_item.code === TIRE_PRESSURE)?.due_status ? "green" : "red";
+            const wheelColor = findMaintenanceItem(TIRE_PRESSURE)?.status_color;
             wheelsMaterial = new THREE.MeshPhysicalMaterial({
                 color: wheelColor
             });
 
-            const waterColor = !car.maintenance_values.find(car_item => car_item.code === WATER)?.due_status ? "green" : "red";
+            const waterColor = findMaintenanceItem(WATER)?.status_color;
             waterMaterial = new THREE.MeshPhysicalMaterial({
                 color: waterColor
             });
 
-            const oilColor = !car.maintenance_values.find(car_item => car_item.code === OIL)?.due_status ? "green" : "red";
+            const oilColor = findMaintenanceItem(OIL)?.status_color;
             oilMaterial = new THREE.MeshPhysicalMaterial({
                 color: oilColor
             });
         }
     }, [car])
 
-    const toggleOpenHood = () => {
-        if(!car) {
+    useEffect(() => {
+        if(!carModel) {
             return;
         }
-        if(openHood) {
-            carModel.getObjectByName('hatch_hood').translateY(-1)
-
-            const container = document.getElementById('animated-card');
-            const parentWidth = container.parentElement.getBoundingClientRect().width
-            const parentHeight = container.parentElement.getBoundingClientRect().height
-            camera = new THREE.PerspectiveCamera(40, parentWidth / (parentHeight - 200), 0.1, 100);
-            camera.position.set(4.25, 1.4, - 4.5);
-            camera.updateProjectionMatrix();
-
-            controls = new OrbitControls(camera, container);
-            controls.maxDistance = 9;
-            controls.maxPolarAngle = THREE.MathUtils.degToRad(90);
-            controls.target.set(0, 0.5, 0);
-            controls.update();
+        if(maintenanceItemSelected == null) {
+            showHood()
         } else {
-            carModel.getObjectByName('hatch_hood').translateY(1)
-            fitCameraTo(carModel.getObjectByName('motor'))
+            hideHood()
         }
-        setOpenHood(prevState => !prevState)
+        if(maintenanceItemSelected === WATER || maintenanceItemSelected === OIL) {
+            fitCameraTo(carModel.getObjectByName('motor'))
+        } else {
+            resetCamera()
+        }
+    }, [maintenanceItemSelected])
+
+    const findMaintenanceItem = (code) => {
+        return car.maintenance_values.find(car_item => car_item.code === code);
+    }
+
+    const hideHood = () => {
+        carModel.getObjectByName('hatch_hood').visible = false
+    }
+
+    const showHood = () => {
+        carModel.getObjectByName('hatch_hood').visible = true
+    }
+
+    const resetCamera = () => {
+        const container = document.getElementById('animated-card');
+        const parentWidth = container.parentElement.getBoundingClientRect().width
+        const parentHeight = container.parentElement.getBoundingClientRect().height
+        camera = new THREE.PerspectiveCamera(40, parentWidth / (parentHeight - 200), 0.1, 100);
+        camera.position.set(4.25, 1.4, - 4.5);
+        camera.updateProjectionMatrix();
+
+        controls = new OrbitControls(camera, container);
+        controls.maxDistance = 9;
+        controls.maxPolarAngle = THREE.MathUtils.degToRad(90);
+        controls.target.set(0, 0.5, 0);
+        controls.update();
     }
 
     const fitCameraTo = (object) => {
         const boundingBox = new THREE.Box3();
-
-        boundingBox.setFromObject( object );
+        boundingBox.setFromObject(object);
         const objPosition = boundingBox.getCenter(new THREE.Vector3());
         const objSize = boundingBox.getSize(new THREE.Vector3());
         boundingBox.min.y = 0;
@@ -132,6 +149,9 @@ export const AnimatedCard = ({car}) => {
         camera.position.copy(objPosition.clone().add(direction.multiplyScalar(distance)));
 
         if (controls) {
+            let axis = new THREE.Vector3( 1, 0, 0);
+            let angle = 200;
+            objPosition.applyAxisAngle(axis, angle);
             controls.target.copy(objPosition);
             // controls.rotateLeft(Math.PI);
         } else {
@@ -259,6 +279,6 @@ export const AnimatedCard = ({car}) => {
 
 
     return (
-        <div id={"animated-card"} className={classes.animatedCard} onClick={toggleOpenHood}></div>
+        <div id={"animated-card"} className={classes.animatedCard} ></div>
    )
 }

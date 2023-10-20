@@ -29,11 +29,12 @@ describe("open alert", () => {
 
 describe("check icon status", () => {
     it.each([
-        {due_status: true, iconId: "ErrorOutlineIcon"},
-        {due_status: false, iconId: "SuccessOutlinedIcon"}
-    ])("when status is '$status' should have icon '$iconId'", ({due_status , iconId}) => {
+        {status_color: 'red', iconId: "ErrorOutlineIcon"},
+        {status_color: 'yellow', iconId: "ReportProblemOutlinedIcon"},
+        {status_color: 'green', iconId: "SuccessOutlinedIcon"}
+    ])("when status is '$status' should have icon '$iconId'", ({status_color , iconId}) => {
         render(
-            <StatusAlert status={{due_status: due_status}} onClose={() => {}} open={false}/>
+            <StatusAlert status={{status_color: status_color}} onClose={() => {}} open={false}/>
         )
         const container = screen.getByTestId(iconId)
         expect(container).toBeTruthy();
