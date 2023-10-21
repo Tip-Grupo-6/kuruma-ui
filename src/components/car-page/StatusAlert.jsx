@@ -21,10 +21,21 @@ const styles = makeStyles(theme => ({
 export const StatusAlert = ({status, open, onClose}) => {
     const classes = styles()
 
+    const severityStatus = () => {
+        switch (status?.status_color) {
+            case "red":
+                return "error";
+            case "yellow":
+                return "warning";
+            default:
+                return "success";
+        }
+    }
+
     return (
-        <Box sx={{ width: '100%' }} className={(open ? `${classes.boxAlert}` : '')}>
+        <Box sx={{ width: '100%' }} className={classes.boxAlert}>
             <Collapse in={open} data-testid={"collapse"}>
-                <Alert data-testid={"alert"} severity={!status?.due_status? "success": "error"} className={classes.statusAlert} action={
+                <Alert data-testid={"alert"} severity={severityStatus()} className={classes.statusAlert} action={
                     <IconButton
                         aria-label="close"
                         color="inherit"

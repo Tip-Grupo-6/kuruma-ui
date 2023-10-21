@@ -1,6 +1,6 @@
 const URL_IP = 'http://192.168.0.10:8080'
-// const URL = 'http://localhost:8080'
-const URL = URL_IP
+const URL = 'http://localhost:8080'
+// const URL = URL_IP
 
 export const fetchCars = async () => {
     const url = `${URL}/cars`

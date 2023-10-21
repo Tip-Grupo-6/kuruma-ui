@@ -13,8 +13,9 @@ import {
     TableRow
 } from "@mui/material";
 
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import CancelIcon from '@mui/icons-material/Cancel';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import {StatusAlert} from "./StatusAlert";
 import {CarModalForm} from "./CarModalForm";
 import {getIconByCode} from "../../utils/MaintenanceItemsUtils";
@@ -67,6 +68,11 @@ const styles = makeStyles(theme => ({
     }
 }))
 
+export const MaintenanceItemContext = React.createContext({
+    maintenance_item_code: null
+})
+
+
 export const CarPage = (props) => {
     const classes = styles()
     const { id } = useParams();
@@ -74,6 +80,7 @@ export const CarPage = (props) => {
     const [ status, setStatus] = useState(null)
     const [open, setOpen] = useState(false);
     const [openModal, setOpenModal] = React.useState(false);
+    const [maintenanceItemSelected, setMaintenanceItemSelected] = useState(null)
 
     useEffect(() => {
         if(!id) {
@@ -97,6 +104,12 @@ export const CarPage = (props) => {
     const openAlert = (status) => {
         setOpen(true)
         setStatus(status)
+        setMaintenanceItemSelected(status.code)
+    }
+
+    const closeAlert = () => {
+        setOpen(false)
+        setMaintenanceItemSelected(null)
     }
 
     const openFormModal = () => {
@@ -104,11 +117,23 @@ export const CarPage = (props) => {
         setOpenModal(true)
     }
 
+    const getStatusIcon = (statusColor) => {
+        switch (statusColor) {
+            case "red":
+                return <ErrorOutlineIcon style={{color: "red"}}/>;
+            case "yellow":
+                return <WarningAmberIcon style={{color: "rgb(237, 108, 2)"}}/>;
+            default:
+                return <TaskAltIcon style={{color: "green"}}/>;
+        }
+    }
+
     return (
         <div className={classes.card}>
+            <MaintenanceItemContext.Provider value={{maintenanceItemSelected}}>
             <div className={classes.carStatus}>
                 { car && (
-                <StatusAlert status={status} open={open} onClose={() => setOpen(false)}/>
+                <StatusAlert status={status} open={open} onClose={closeAlert}/>
                 )}
                 <div className={classes.statusTable}>
                     <Button variant="outlined" onClick={openFormModal} style={{marginBottom: '5px', width: "100%"}}>
@@ -127,9 +152,7 @@ export const CarPage = (props) => {
                                     >
                                         <TableCell component="th" scope="row">{row.component}</TableCell>
                                         <TableCell align="right">
-                                            {!row.due_status
-                                                ? <CheckCircleOutlineIcon style={{color: "green"}}/>
-                                                : <CancelIcon style={{color: "red"}}/> }
+                                            {getStatusIcon(row.status_color)}
                                         </TableCell>
                                     </TableRow>
                                 ))}
@@ -139,6 +162,7 @@ export const CarPage = (props) => {
                 </div>
             </div>
             <AnimatedCard car={car} />
+            </MaintenanceItemContext.Provider>
         </div>
     )
 }

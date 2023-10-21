@@ -2,7 +2,7 @@
 
 exports[`status alert should match with snapshot 1`] = `
 <div
-  className="MuiBox-root css-8atqhb"
+  className="makeStyles-boxAlert-1 MuiBox-root css-8atqhb"
 >
   <div
     className="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-bz4dnt-MuiCollapse-root"
