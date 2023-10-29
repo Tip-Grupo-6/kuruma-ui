@@ -1,7 +1,8 @@
 import React, {useEffect, useState} from "react";
-import Select from 'react-select'
+import Select, {components} from 'react-select'
 import SingleValueDefault from "./CustomSelect/SingleValueDefault";
 import {makeStyles} from "@material-ui/core/styles";
+import {CircularProgress, Icon} from "@mui/material";
 
 const customStyles = {
     control: (baseStyles, state) => ({
@@ -64,36 +65,27 @@ const styles = makeStyles(theme => ({
     }
 }))
 
+const DropdownIndicator = ({ children, ...props }, loading) => {
+
+    return (
+        <components.DropdownIndicator {...props}>
+            {loading
+                ? <CircularProgress style={{width: "24px", height: "24px", color: "rgb(100, 113, 128)"}}/>
+                : <components.DownChevron>{children}</components.DownChevron>}
+        </components.DropdownIndicator>
+    )
+}
+
 export const CustomSelect = (props) => {
-    const { selectedValue, defaultValue, data, placeholder, label, name, singleValue, onFocus, searchable, emptySelectMessage, ...rest } = props
+    const { data, placeholder, label, name, singleValue, searchable, errorMessage, loading, ...rest } = props
     const singleValueComponent = singleValue || SingleValueDefault
 
     const classes = styles()
-    const [touched, setTouched] = useState(false)
 
-    // useEffect(() => {
-    //     if (defaultValue && !selectedValue) {
-    //         setValue(defaultValue)
-    //     }
-    // }, [defaultValue])
-    //
-    // const onChangeValue = ({value}) => {
-    //     const rowSelected = data.find((row) => row.value.toString() === value)
-    //     if (rowSelected != null) {
-    //         setValue(rowSelected)
-    //         onChange && onChange(rowSelected)
-    //     }
-    // }
-
-    const onBlur = () => {
-        setTouched(true)
-    }
 
     return (
         <>
             <Select
-                value={selectedValue}
-                defaultValue={defaultValue}
                 name={name}
                 options={data}
                 placeholder={placeholder}
@@ -102,25 +94,24 @@ export const CustomSelect = (props) => {
                 // onChange={onChangeValue}
                 components={{
                     IndicatorSeparator: () => null,
-                    SingleValue: (props) => singleValueComponent(props)
+                    SingleValue: (props) => singleValueComponent(props),
+                    DropdownIndicator: (props) => DropdownIndicator(props, loading)
                 }}
-                onFocus={onFocus}
-                onBlur={onBlur}
                 menuPosition="fixed"
                 {...rest}
-
-            />
-            {/*{emptySelectMessage && touched && !selectedValue && (*/}
-            {/*    <div className={classes.flexStart}>*/}
-            {/*        <Icon*/}
-            {/*            name='error_circle_outline'*/}
-            {/*            variant='danger'*/}
-            {/*            width={16}*/}
-            {/*            height={16}*/}
-            {/*        />*/}
-            {/*        <Span type='4' variant={'danger'}>{emptySelectMessage}</Span>*/}
-            {/*    </div>*/}
-            {/*)}*/}
+            >
+            {errorMessage  && !props.value && (
+                <div className={classes.flexStart}>
+                    <Icon
+                        name='error_circle_outline'
+                        variant='danger'
+                        width={16}
+                        height={16}
+                    />
+                    <span type='4' variant={'danger'}>{errorMessage}</span>
+                </div>
+            )}
+            </Select>
         </>
     )
 }

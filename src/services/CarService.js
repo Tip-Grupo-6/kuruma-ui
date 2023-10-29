@@ -39,3 +39,15 @@ export const updateCar = async (id, car) => {
     })
     return await response.json()
 }
+
+export const findBrands = async (year) => {
+    const url = `${URL}/v2/car_data/makes?year=${year}`
+    const response = await fetch(url)
+    return await response.json()
+}
+
+export const findModels = async (year, brand) => {
+    const url = `${URL}/v2/car_data/models?year=${year}&make_id=${brand}`
+    const response = await fetch(url)
+    return await response.json()
+}

@@ -4,7 +4,8 @@ import CloseIcon from "@mui/icons-material/Close";
 import useMediaQuery from '@mui/material/useMediaQuery';
 
 import React, {useEffect, useState} from "react";
-import {createCar, fetchMaintenanceItems, updateCar} from "../../services/CarService";
+import {createCar, fetchMaintenanceItems, findBrands, findModels, updateCar} from "../../services/CarService";
+
 import {CustomSelect} from "../form-fields/CustomSelect";
 import {InputLabel} from "../form-fields/InputLabel";
 import {makeStyles} from "@material-ui/core/styles";
@@ -70,12 +71,21 @@ const validationSchema = yup.object({
         }))
 });
 
+const years = []
+for(let i = 1994; i < 2024; i++) {
+    years.push({value: i, label: i})
+}
+
 export const CarModalForm = ({car, open, closeModal}) => {
 
     const classes = styles()
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
     const [maintenanceItems, setMaintenanceItems] = useState([])
+    const [brands, setBrands] = useState([])
+    const [models, setModels] = useState([])
+    const [loadingBrands, setLoadingBrands] = useState(false)
+    const [loadingModels, setLoadingModels] = useState(false)
     const navigate = useNavigate();
 
     const formik = useFormik({
@@ -104,6 +114,7 @@ export const CarModalForm = ({car, open, closeModal}) => {
 
     useEffect(() => {
         if(car) {
+            fetchBrands(car.year)
             formik.setValues(
                 {
                     brand: car.brand,
@@ -138,7 +149,7 @@ export const CarModalForm = ({car, open, closeModal}) => {
         )
     }
 
-    const onChangeMultiSelect = (itemsSelected) => {
+    const onChangeMaintenanceItems = (itemsSelected) => {
         const selected = itemsSelected.map(item => {
             const lastChange = findMaintenanceByCode(item.value)?.last_change || null;
             return {code: item.value, last_change: lastChange, description: item.description}
@@ -175,6 +186,62 @@ export const CarModalForm = ({car, open, closeModal}) => {
                 && formik.errors.maintenance_values?.[index]?.last_change
     }
 
+    const onChangeYear = (optionSelected) => {
+        formik.setFieldValue(`year`, optionSelected.value)
+        formik.setFieldValue(`brand`, null)
+        formik.setFieldValue(`model`, null)
+        setBrands([])
+        setModels([])
+
+        fetchBrands(optionSelected.value)
+    }
+
+    const fetchBrands = (year) => {
+        setLoadingBrands(true)
+        findBrands(year).then(data => {
+            setBrands(data.map(brand => ({value: brand.id, label: brand.description})))
+        })
+        .catch(e => console.log(e))
+        .finally(() => setLoadingBrands(false))
+    }
+
+    const onChangeBrand = (optionSelected) => {
+        formik.setFieldValue(`brand`, optionSelected.label)
+        setModels([])
+        setLoadingModels(true)
+        findModels(formik.values.year, optionSelected.value).then(data => {
+            setModels(data.map(brand => ({value: brand.description, label: brand.description})))
+        })
+        .catch(e => console.log(e))
+        .finally(() => setLoadingModels(false))
+    }
+
+    const onChangeModel = (optionSelected) => {
+        formik.setFieldValue(`model`, optionSelected.value)
+    }
+
+    const getYearSelected = () => {
+        return years.find(option => option.label === car?.year);
+    }
+
+    const getBrandSelected = () => {
+        if(car) {
+            const brand = car.brand.toUpperCase()
+            return {value: brand, label: brand }
+        }
+        return null
+    }
+
+    const getModelSelected = () => {
+        if(car) {
+            const model = car.model.toUpperCase()
+            return {value: model, label: model }
+        }
+        return null
+    }
+
+
+
     return (
         <BootstrapDialog
             onClose={closeModal}
@@ -202,24 +269,59 @@ export const CarModalForm = ({car, open, closeModal}) => {
                 </IconButton>
                     <DialogContent dividers>
                         <div className={classes.formLabels}>
-                            <InputLabel id={'input-brand'} label={"Marca *"} name={'brand'}
-                                        value={formik.values.brand}
-                                        onChange={formik.handleChange}
-                                        onBlur={formik.handleBlur}
-                                        error={formik.touched.brand && Boolean(formik.errors.brand)}
-                                        helperText={formik.touched.brand && formik.errors.brand} />
-                            <InputLabel id={'input-model'} label={"Modelo *"} name={'model'}
-                                        value={formik.values.model}
-                                        onChange={formik.handleChange}
-                                        onBlur={formik.handleBlur}
-                                        error={formik.touched.model && Boolean(formik.errors.model)}
-                                        helperText={formik.touched.model && formik.errors.model} />
-                            <InputLabel id={'input-year'} label={"Año *"} name={'year'}
-                                        value={formik.values.year}
-                                        onChange={formik.handleChange}
-                                        onBlur={formik.handleBlur}
-                                        error={formik.touched.year && Boolean(formik.errors.year)}
-                                        helperText={formik.touched.year && formik.errors.year} />
+                            <CustomSelect
+                                name={'year'}
+                                placeholder={"Selecciona un Año *"}
+                                data={years}
+                                onChange={(value) => onChangeYear(value)}
+                                defaultValue={getYearSelected()}
+                                errorMessage={formik.touched.year && Boolean(formik.errors.year)}
+                                helperText={formik.touched.year && formik.errors.year}
+                            />
+                            {/*<InputLabel id={'input-year'} label={"Año *"} name={'year'}*/}
+                            {/*            value={formik.values.year}*/}
+                            {/*            onChange={formik.handleChange}*/}
+                            {/*            onBlur={formik.handleBlur}*/}
+                            {/*            error={formik.touched.year && Boolean(formik.errors.year)}*/}
+                            {/*            helperText={formik.touched.year && formik.errors.year} />*/}
+
+                            <CustomSelect
+                                name={'brand'}
+                                placeholder={"Selecciona una Marca *"}
+                                data={brands}
+                                onChange={(value) => onChangeBrand(value)}
+                                defaultValue={getBrandSelected()}
+                                errorMessage={formik.touched.brand && Boolean(formik.errors.brand)}
+                                helperText={formik.touched.brand && formik.errors.brand}
+                                isDisabled={brands.length === 0}
+                                loading={loadingBrands}
+                            />
+                            {/*<InputLabel id={'input-brand'} label={"Marca *"} name={'brand'}*/}
+                            {/*            value={formik.values.brand}*/}
+                            {/*            onChange={formik.handleChange}*/}
+                            {/*            onBlur={formik.handleBlur}*/}
+                            {/*            error={formik.touched.brand && Boolean(formik.errors.brand)}*/}
+                            {/*            helperText={formik.touched.brand && formik.errors.brand} />*/}
+
+
+                            <CustomSelect
+                                name={'model'}
+                                placeholder={"Selecciona una Modelo *"}
+                                data={models}
+                                onChange={(value) => onChangeModel(value)}
+                                defaultValue={getModelSelected()}
+                                errorMessage={formik.touched.model && Boolean(formik.errors.model)}
+                                helperText={formik.touched.model && formik.errors.model}
+                                isDisabled={models.length === 0}
+                                loading={loadingModels}
+                            />
+                            {/*<InputLabel id={'input-model'} label={"Modelo *"} name={'model'}*/}
+                            {/*            value={formik.values.model}*/}
+                            {/*            onChange={formik.handleChange}*/}
+                            {/*            onBlur={formik.handleBlur}*/}
+                            {/*            error={formik.touched.model && Boolean(formik.errors.model)}*/}
+                            {/*            helperText={formik.touched.model && formik.errors.model} />*/}
+
                             <InputLabel id={'input-kms'} label={"Kilometros *"} name={'kilometers'}
                                         value={formik.values.kilometers}
                                         onChange={formik.handleChange}
@@ -237,8 +339,8 @@ export const CarModalForm = ({car, open, closeModal}) => {
                         <CustomSelect
                             placeholder={"Selecciona un item"}
                             data={convertData()}
-                            onChange={onChangeMultiSelect}
-                            selectedValue={getItemsSelected()}
+                            onChange={onChangeMaintenanceItems}
+                            defaultValue={getItemsSelected()}
                             isDisabled={maintenanceItems.length === 0}
                             isMulti
                         />
