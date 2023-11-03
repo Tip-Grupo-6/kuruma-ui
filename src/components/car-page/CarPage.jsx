@@ -19,6 +19,7 @@ import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import {StatusAlert} from "./StatusAlert";
 import {CarModalForm} from "./CarModalForm";
 import {getIconByCode} from "../../utils/MaintenanceItemsUtils";
+import {TripButton} from "./TripButton";
 
 
 const styles = makeStyles(theme => ({
@@ -54,6 +55,9 @@ const styles = makeStyles(theme => ({
         }
     },
     tableRow: {
+        "& th": {
+          width: '100%'
+        },
         "&:not(:last-child)": {
             borderRight: "2px solid rgb(210, 210, 210)",
         },
@@ -64,6 +68,14 @@ const styles = makeStyles(theme => ({
             '&:last-child td, &:last-child th': {
                 border: 0
             }
+        }
+    },
+    button: {
+        marginBottom: '5px !important',
+        width: "100%",
+        display: 'block',
+        [theme.breakpoints.up("sm")]: {
+            width: '180px'
         }
     }
 }))
@@ -128,6 +140,9 @@ export const CarPage = (props) => {
         }
     }
 
+
+
+
     return (
         <div className={classes.card}>
             <MaintenanceItemContext.Provider value={{maintenanceItemSelected}}>
@@ -136,7 +151,10 @@ export const CarPage = (props) => {
                 <StatusAlert status={status} open={open} onClose={closeAlert}/>
                 )}
                 <div className={classes.statusTable}>
-                    <Button variant="outlined" onClick={openFormModal} style={{marginBottom: '5px', width: "100%"}}>
+                    { car && (
+                    <TripButton car={car}/>
+                    )}
+                    <Button variant="outlined" onClick={openFormModal} className={classes.button}>
                         {car ? "Editar" : "Nuevo"}
                     </Button>
                     <CarModalForm car={car} open={openModal} closeModal={() => setOpenModal(false)} />
