@@ -10,6 +10,8 @@ import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
 import {makeStyles} from "@material-ui/core/styles";
 import {Link} from "react-router-dom";
+import {useState} from "react";
+import {SideBar} from "./SideBar";
 
 const styles = makeStyles(theme => ({
     appbar: {
@@ -51,6 +53,7 @@ export default function Navbar() {
     const classes = styles()
 
     const [anchorEl, setAnchorEl] = React.useState(null);
+    const [showMenu, setShowMenu] = useState(false)
 
     const handleMenu = (event) => {
         setAnchorEl(event.currentTarget);
@@ -70,6 +73,7 @@ export default function Navbar() {
                         color="inherit"
                         aria-label="menu"
                         sx={{ mr: 2 }}
+                        onClick={() => setShowMenu(true)}
                     >
                         <MenuIcon />
                     </IconButton>
@@ -114,6 +118,7 @@ export default function Navbar() {
                     </div>
                 </Toolbar>
             </AppBar>
+            <SideBar open={showMenu} onClose={() => setShowMenu(false)}/>
         </Box>
     );
 }

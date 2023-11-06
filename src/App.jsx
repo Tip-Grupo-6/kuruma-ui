@@ -8,6 +8,7 @@ import {CarList} from "./components/cars-list/CarList";
 import Navbar from "./components/navbar/Navbar";
 import {Route, Routes} from "react-router-dom";
 import {CarPage} from "./components/car-page/CarPage";
+import {NotificationPage} from "./components/notifications/NotificationPage";
 
 
 const App = () => {
@@ -18,6 +19,7 @@ const App = () => {
             <Routes>
                 <Route path="" element={<CarPage/>} />
                 <Route path="/:id" element={<CarPage/>} />
+                <Route path="/notificaciones" element={<NotificationPage/>} />
             </Routes>
         </div>
 

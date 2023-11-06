@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React from "react";
 import Select, {components} from 'react-select'
 import SingleValueDefault from "./CustomSelect/SingleValueDefault";
 import {makeStyles} from "@material-ui/core/styles";
@@ -28,6 +28,7 @@ const customStyles = {
         transform: state.selectProps.menuIsOpen && "rotate(180deg)", //así rotamos el icono de arrow cuando se abre o cierra el select
         color: "#000000"
     }),
+    menuPortal: (base) =>({ ...base, zIndex: 9999 }),
     option: (base) => ({
         ...base,
         paddingLeft: '16px',
@@ -98,6 +99,7 @@ export const CustomSelect = (props) => {
                     DropdownIndicator: (props) => DropdownIndicator(props, loading)
                 }}
                 menuPosition="fixed"
+                menuPortalTarget={document.body}
                 {...rest}
             >
             {errorMessage  && !props.value && (

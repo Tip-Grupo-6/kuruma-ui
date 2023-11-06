@@ -24,7 +24,7 @@ export const InputLabel = (props) => {
             type={type}
             name={name}
             value={value}
-            style={{minWidth: "100px", margin: "5px"}}
+            style={{minWidth: "100px", margin: "5px", position: 'relative'}}
             {...rest}
         />
     )
