@@ -87,7 +87,6 @@ export const MaintenanceItemContext = React.createContext({
 
 export const CarPage = (props) => {
     const classes = styles()
-    const { id } = useParams();
     const [ car, setCar] = useState(null)
     const [ status, setStatus] = useState(null)
     const [open, setOpen] = useState(false);
@@ -95,17 +94,12 @@ export const CarPage = (props) => {
     const [maintenanceItemSelected, setMaintenanceItemSelected] = useState(null)
 
     useEffect(() => {
-        if(!id) {
-            setCar(null)
-        }
-        if(id) {
-            fetchCarById(id).then(data => {
-                if(!data.status) {
-                    setCar(data)
-                }
-            }).catch(e => console.log(e))
-        }
-    }, [id])
+        fetchCarById(1).then(data => {
+            if(!data.status) {
+                setCar(data)
+            }
+        }).catch(e => console.log(e))
+    }, [])
 
     const getMaintenanceData = () => {
         return car?.maintenance_values.map(car_item => {

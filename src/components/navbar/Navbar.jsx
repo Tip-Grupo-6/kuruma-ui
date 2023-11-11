@@ -9,9 +9,10 @@ import AccountCircle from '@mui/icons-material/AccountCircle';
 import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
 import {makeStyles} from "@material-ui/core/styles";
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import {useState} from "react";
 import {SideBar} from "./SideBar";
+import {useUserLogged} from "../context/UserLogged";
 
 const styles = makeStyles(theme => ({
     appbar: {
@@ -54,6 +55,8 @@ export default function Navbar() {
 
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [showMenu, setShowMenu] = useState(false)
+    const {userLogout} = useUserLogged()
+    const navigate = useNavigate();
 
     const handleMenu = (event) => {
         setAnchorEl(event.currentTarget);
@@ -62,6 +65,11 @@ export default function Navbar() {
     const handleClose = () => {
         setAnchorEl(null);
     };
+
+    const logout = () => {
+        userLogout()
+        navigate("/login")
+    }
 
     return (
         <Box sx={{ flexGrow: 1 }}>
@@ -112,8 +120,7 @@ export default function Navbar() {
                             open={Boolean(anchorEl)}
                             onClose={handleClose}
                         >
-                            <MenuItem onClick={handleClose}>Perfil</MenuItem>
-                            <MenuItem onClick={handleClose}>Cerrar sesion</MenuItem>
+                            <MenuItem onClick={logout}>Cerrar sesion</MenuItem>
                         </Menu>
                     </div>
                 </Toolbar>

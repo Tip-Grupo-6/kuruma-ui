@@ -1,4 +1,5 @@
 import * as React from "react";
+import {useNavigate} from "react-router-dom";
 import {makeStyles} from "@material-ui/core/styles";
 import {useFormik} from "formik";
 import * as yup from "yup";
@@ -10,6 +11,7 @@ import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 import Box from "@mui/material/Box";
 import {useState} from "react";
+import {useUserLogged} from "../context/UserLogged";
 
 const styles = makeStyles(theme => ({
     container: {
@@ -86,6 +88,8 @@ const validationSchema = yup.object({
 export const LoginPage = () => {
 
     const classes = styles()
+    const {userLogged} = useUserLogged()
+    const navigate = useNavigate();
     const [errorLogin, setErrorLogin] = useState(false)
     const formik = useFormik({
         initialValues: {
@@ -94,10 +98,12 @@ export const LoginPage = () => {
         },
         validationSchema: validationSchema,
         onSubmit: (values) => {
-            login(values)
-                .then((data) => console.log(data))
+            login({username: values.email, password: values.password})
+                .then((data) => {
+                    userLogged(data.token)
+                    navigate("/")
+                })
                 .catch(() => setErrorLogin(true))
-            console.log(values)
         },
     });
 

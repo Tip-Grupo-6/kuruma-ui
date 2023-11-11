@@ -9,27 +9,44 @@ import {Route, Routes} from "react-router-dom";
 import {CarPage} from "./components/car-page/CarPage";
 import {NotificationPage} from "./components/notifications/NotificationPage";
 import {LoginPage} from "./components/login-page/LoginPage";
-import {useState} from "react";
 import {OnboardingPage} from "./components/login-page/Onboarding";
+import {UserLoggedProvider} from "./components/context/UserLoggedContext";
+import {PrivateRoute} from "./components/routes/PrivateRoute";
+import {PublicRoute} from "./components/routes/PublicRoute";
 
 
 const App = () => {
 
-    const [isLogged, setIsLogged] = useState(false)
-
     return (
-        <div>
-            {isLogged && (
-                <Navbar />
-            )}
-            <Routes>
-                <Route path="/login" element={<LoginPage/>} />
-                <Route path="/onboarding" element={<OnboardingPage/>} />
-                <Route path="" element={<CarPage/>} />
-                <Route path="/:id" element={<CarPage/>} />
-                <Route path="/notificaciones" element={<NotificationPage/>} />
-            </Routes>
-        </div>
+        <UserLoggedProvider>
+            <div>
+                <Routes>
+                    <Route path={"/login"} element={<PublicRoute />}>
+                        <Route path="/login" element={<LoginPage/>} />
+                    </Route>
+                    <Route path={"/onboarding"} element={<PublicRoute />}>
+                        <Route path={"/onboarding"} element={<OnboardingPage />} />
+                    </Route>
+
+                    <Route path={"/"} element={<PrivateRoute />}>
+                        <Route path={"/"} element={
+                            <>
+                                <Navbar />
+                                <CarPage />
+                            </>
+                        } />
+                    </Route>
+                    <Route path={"/notificaciones"} element={<PrivateRoute />}>
+                        <Route path={"/notificaciones"} element={
+                            <>
+                                <Navbar />
+                                <NotificationPage />
+                            </>
+                        } />
+                    </Route>
+                </Routes>
+            </div>
+        </UserLoggedProvider>
 
 );
 }
