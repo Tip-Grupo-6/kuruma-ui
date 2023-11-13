@@ -1,8 +1,8 @@
 import React, {useEffect, useState} from "react";
 
 export const UserLoggedContext = React.createContext({
-    isLogged: false,
-    accessToken: null,
+    isUserLogged: false,
+    userAccessToken: null,
     userLogged: () => undefined,
     userLogout: () => undefined
 })

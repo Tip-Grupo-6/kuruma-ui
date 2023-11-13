@@ -17,6 +17,7 @@ import dayjs from "dayjs";
 import {useFormik} from "formik";
 import * as yup from 'yup';
 import {getIconByCode} from "../../utils/MaintenanceItemsUtils";
+import {jwtDecode} from "jwt-decode";
 
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
@@ -76,7 +77,7 @@ for(let i = 1994; i < 2024; i++) {
     years.push({value: i, label: i})
 }
 
-export const CarModalForm = ({car, open, closeModal}) => {
+export const CarModalForm = ({car, open, closeModal, onCreation}) => {
 
     const classes = styles()
     const theme = useTheme();
@@ -87,6 +88,7 @@ export const CarModalForm = ({car, open, closeModal}) => {
     const [loadingBrands, setLoadingBrands] = useState(false)
     const [loadingModels, setLoadingModels] = useState(false)
     const navigate = useNavigate();
+    const accessToken = localStorage.getItem("accessToken")
 
     const formik = useFormik({
         initialValues: {
@@ -99,13 +101,15 @@ export const CarModalForm = ({car, open, closeModal}) => {
         },
         validationSchema: validationSchema,
         onSubmit: (values) => {
+            const tokenData = jwtDecode(accessToken)
+            const body = {...values, user_id: tokenData?.user.user_id}
             if(!car?.id) {
-                createCar(values).then(data => {
-                    navigate(`/${data.id}`) //redirecciono
-                    navigate(0); //recargo la pagina para que actualice el render del auto
+                createCar(body, accessToken).then(data => {
+                    onCreation(data.id)
+                    closeModal()
                 });
             } else {
-                updateCar(car.id, values).then(() => {
+                updateCar(car.id, body, accessToken).then(() => {
                     navigate(0); //recargo la pagina para que actualice el render del auto
                 })
             }
@@ -131,11 +135,13 @@ export const CarModalForm = ({car, open, closeModal}) => {
     }, [car])
 
     useEffect(() => {
-        fetchMaintenanceItems().then(data => {
-            setMaintenanceItems(data)
-        })
-        .catch((e) => console.log(e))
-    }, [])
+        if(open && maintenanceItems.length === 0) {
+            fetchMaintenanceItems(accessToken).then(data => {
+                setMaintenanceItems(data)
+            })
+            .catch((e) => console.log(e))
+        }
+    }, [open])
 
     const convertData = () => {
         return maintenanceItems.map(item => (
@@ -198,7 +204,7 @@ export const CarModalForm = ({car, open, closeModal}) => {
 
     const fetchBrands = (year) => {
         setLoadingBrands(true)
-        findBrands(year).then(data => {
+        findBrands(year, accessToken).then(data => {
             setBrands(data.map(brand => ({value: brand.id, label: brand.description})))
         })
         .catch(e => console.log(e))
@@ -209,7 +215,7 @@ export const CarModalForm = ({car, open, closeModal}) => {
         formik.setFieldValue(`brand`, optionSelected.label)
         setModels([])
         setLoadingModels(true)
-        findModels(formik.values.year, optionSelected.value).then(data => {
+        findModels(formik.values.year, optionSelected.value, accessToken).then(data => {
             setModels(data.map(brand => ({value: brand.description, label: brand.description})))
         })
         .catch(e => console.log(e))

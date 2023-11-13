@@ -4,7 +4,7 @@ import {useFormik} from "formik";
 import * as yup from "yup";
 import {InputLabel} from "../form-fields/InputLabel";
 import {Button} from "@mui/material";
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import {onboarding} from "../../services/UserService";
 
 const styles = makeStyles(theme => ({
@@ -84,6 +84,7 @@ const validationSchema = yup.object({
 
 export const OnboardingPage = () => {
 
+    const navigate = useNavigate();
     const classes = styles()
     const formik = useFormik({
         initialValues: {
@@ -94,7 +95,7 @@ export const OnboardingPage = () => {
         validationSchema: validationSchema,
         onSubmit: (values) => {
             onboarding(values)
-                .then(data => console.log(data))
+                .then(() => navigate("/login"))
             console.log(values)
         },
     });
