@@ -23,7 +23,7 @@ export const SideBar = ({open, onClose}) => {
                 <List>
                     <ListItem key={"Tu auto"} disablePadding>
                         <ListItemButton>
-                            <Link to="/1" onClick={onClose} style={{display: 'flex', alignItems: 'center', textDecoration: 'none', color: 'inherit'}}>
+                            <Link to="/" onClick={onClose} style={{display: 'flex', alignItems: 'center', textDecoration: 'none', color: 'inherit'}}>
                                 <ListItemIcon>
                                     <DirectionsCarIcon />
                                 </ListItemIcon>

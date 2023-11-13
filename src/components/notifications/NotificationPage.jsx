@@ -10,6 +10,7 @@ import {fetchCarById} from "../../services/CarService";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import {useNavigate} from "react-router-dom";
+import {jwtDecode} from "jwt-decode";
 
 const styles = makeStyles(theme => ({
     card: {
@@ -87,13 +88,14 @@ export const NotificationPage = () => {
     const id = 1
     const navigate = useNavigate();
     const [notificationSelected, setNotificationSelected] = useState(null)
+    const accessToken = localStorage.getItem("accessToken")
 
     useEffect(() => {
         if(!id) {
             setCar(null)
         }
         if(id) {
-            fetchCarById(id).then(data => {
+            fetchCarById(id, accessToken).then(data => {
                 if(!data.status) {
                     setCar(data)
                 }
@@ -102,20 +104,22 @@ export const NotificationPage = () => {
     }, [id])
 
     useEffect(() => {
-        fetchNotifications(1)
-            .then(data => setNotifications(data))
-            .catch(e => console.log(e))
-    }, [])
+        if(car) {
+            fetchNotifications(car.id, accessToken)
+                .then(data => setNotifications(data))
+                .catch(e => console.log(e))
+        }
+    }, [car])
 
     const openFormModal = () => setOpenModal(true)
 
     const getIconForItem = (notification) => {
-        const maintenanceItem = car.maintenance_values?.find(maintenanceItem => maintenanceItem.id === notification.car_item_id)
+        const maintenanceItem = car.maintenance_values?.find(maintenanceItem => maintenanceItem.id === notification.maintenance_item_id)
         return getIconByCode(maintenanceItem.code)
     }
 
     const getDescriptionForItem = (notification) => {
-        const maintenanceItem = car.maintenance_values?.find(maintenanceItem => maintenanceItem.id === notification.car_item_id)
+        const maintenanceItem = car.maintenance_values?.find(maintenanceItem => maintenanceItem.id === notification.maintenance_item_id)
         return maintenanceItem.name
     }
 
@@ -135,7 +139,7 @@ export const NotificationPage = () => {
     }
 
     const confirmDelete = () => {
-        deleteNotification(notificationSelected.id)
+        deleteNotification(notificationSelected.id, accessToken)
             .then(() => navigate(0) /* recargo la pagina*/)
         setOpenConfirmModal(false)
     }
@@ -154,7 +158,7 @@ export const NotificationPage = () => {
                           title={'¿Desea borrar la notificación?'}
             />
             <div className={classes.notificationList}>
-                {notifications.map(notification => (
+                {notifications?.map(notification => (
                 <div key={notification.id}>
                 <Card sx={{ minWidth: 275 }} >
                     <CardContent>

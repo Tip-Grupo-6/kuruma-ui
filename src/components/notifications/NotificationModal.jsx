@@ -44,11 +44,12 @@ export const NotificationModal = ({car, notification, open, closeModal}) => {
     const classes = styles()
     const navigate = useNavigate();
     const [itemSelected, setItemSelected] = useState(null)
+    const accessToken = localStorage.getItem("accessToken")
 
     const formik = useFormik({
         initialValues: {
             car_id: '',
-            car_item_id: '',
+            maintenance_item_id: '',
             frequency: '',
             message: ''
         },
@@ -56,11 +57,11 @@ export const NotificationModal = ({car, notification, open, closeModal}) => {
         onSubmit: (values) => {
             const body = { ...values, car_id: car.id }
             if(!notification?.id) {
-                createNotification(body).then(data => {
+                createNotification(body, accessToken).then(data => {
                     navigate(0); //recargo la pagina para que actualice el render del auto
                 });
             } else {
-                updateNotification(notification.id, body).then(() => {
+                updateNotification(notification.id, body, accessToken).then(() => {
                     navigate(0); //recargo la pagina para que actualice el render del auto
                 })
             }
@@ -69,12 +70,12 @@ export const NotificationModal = ({car, notification, open, closeModal}) => {
 
     useEffect(() => {
         if(notification) {
-            formik.setFieldValue("car_item_id", notification.car_item_id)
+            formik.setFieldValue("maintenance_item_id", notification.maintenance_item_id)
             formik.setFieldValue("frequency", notification.frequency)
             formik.setFieldValue("message", notification.message)
             setItemSelected(findItemSelected())
         } else {
-            formik.setFieldValue("car_item_id", '')
+            formik.setFieldValue("maintenance_item_id", '')
             formik.setFieldValue("frequency", 0)
             formik.setFieldValue("message", '')
             setItemSelected(null)
@@ -82,7 +83,11 @@ export const NotificationModal = ({car, notification, open, closeModal}) => {
     }, [notification])
 
     const convertData = () => {
-        return car?.maintenance_values.map(item => (
+        return [
+            {id: 1, code: 'OIL', name: 'Aceite' },
+            {id: 2, code: 'WATER', name: 'Agua' },
+            {id: 3, code: 'TIRE_PRESSURE', name: 'Presión de neumáticos' }
+        ].map(item => (
             { value: `${item.id}`, label: optionItem(item), description: item.name }
         ));
     }
@@ -94,7 +99,7 @@ export const NotificationModal = ({car, notification, open, closeModal}) => {
     }
 
     const onChangeMaintenanceItems = (itemSelected) => {
-        formik.setFieldValue("car_item_id", itemSelected.value)
+        formik.setFieldValue("maintenance_item_id", itemSelected.value)
         setItemSelected(itemSelected)
     }
 
@@ -103,7 +108,7 @@ export const NotificationModal = ({car, notification, open, closeModal}) => {
     }
 
     const findItemSelected = () => {
-        return convertData()?.find(option => option.value === notification?.car_item_id.toString())
+        return convertData()?.find(option => option.value === notification?.maintenance_item_id.toString())
     }
 
     return (
@@ -138,7 +143,7 @@ export const NotificationModal = ({car, notification, open, closeModal}) => {
                         data={convertData()}
                         onChange={onChangeMaintenanceItems}
                         value={itemSelected}
-                        isDisabled={car?.maintenance_values.length === 0}
+                        // isDisabled={car?.maintenance_values.length === 0}
                     />
                     <InputLabel id={'input-frecuency'} label={'Frecuencia de dias *'} type={'number'} name={'frecuency'}
                                 value={formik.values.frequency}

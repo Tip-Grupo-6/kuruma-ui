@@ -1,7 +1,6 @@
 import {makeStyles} from "@material-ui/core/styles";
 import React, {useEffect, useState} from "react";
 import {AnimatedCard} from "./AnimatedCard";
-import {useParams} from "react-router-dom";
 import {fetchCarById} from "../../services/CarService";
 import {
     Button,
@@ -20,6 +19,9 @@ import {StatusAlert} from "./StatusAlert";
 import {CarModalForm} from "./CarModalForm";
 import {getIconByCode} from "../../utils/MaintenanceItemsUtils";
 import {TripButton} from "./TripButton";
+import {useUserLogged} from "../context/UserLogged";
+import {jwtDecode} from "jwt-decode";
+import {redirect} from "react-router-dom";
 
 
 const styles = makeStyles(theme => ({
@@ -87,25 +89,24 @@ export const MaintenanceItemContext = React.createContext({
 
 export const CarPage = (props) => {
     const classes = styles()
-    const { id } = useParams();
     const [ car, setCar] = useState(null)
     const [ status, setStatus] = useState(null)
     const [open, setOpen] = useState(false);
     const [openModal, setOpenModal] = React.useState(false);
     const [maintenanceItemSelected, setMaintenanceItemSelected] = useState(null)
+    const accessToken = localStorage.getItem("accessToken")
 
     useEffect(() => {
-        if(!id) {
-            setCar(null)
-        }
-        if(id) {
-            fetchCarById(id).then(data => {
+        const tokenData = jwtDecode(accessToken)
+        const carId = tokenData?.user?.car_id || car.id
+        if(carId) {
+            fetchCarById(tokenData.user.car_id, accessToken).then(data => {
                 if(!data.status) {
                     setCar(data)
                 }
             }).catch(e => console.log(e))
         }
-    }, [id])
+    }, [])
 
     const getMaintenanceData = () => {
         return car?.maintenance_values.map(car_item => {
@@ -140,6 +141,14 @@ export const CarPage = (props) => {
         }
     }
 
+    const onCarCreation = (id) => {
+        fetchCarById(id, accessToken).then(data => {
+            if(!data.status) {
+                setCar(data)
+                redirect(0) // redirecciono
+            }
+        }).catch(e => console.log(e))
+    }
 
 
 
@@ -157,7 +166,7 @@ export const CarPage = (props) => {
                     <Button variant="outlined" onClick={openFormModal} className={classes.button}>
                         {car ? "Editar" : "Nuevo"}
                     </Button>
-                    <CarModalForm car={car} open={openModal} closeModal={() => setOpenModal(false)} />
+                    <CarModalForm car={car} open={openModal} closeModal={() => setOpenModal(false)} onCreation={onCarCreation}/>
 
                     <TableContainer component={Paper} >
                         <Table  aria-label="simple table">
