@@ -11,6 +11,7 @@ import {useNavigate} from "react-router-dom";
 import {getIconByCode} from "../../utils/MaintenanceItemsUtils";
 import {makeStyles} from "@material-ui/core/styles";
 import {createNotification, updateNotification} from "../../services/NotificationService";
+import {jwtDecode} from "jwt-decode";
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
     '& .MuiDialogContent-root': {
@@ -37,7 +38,7 @@ const validationSchema = yup.object({
         .string('Mensaje de alerta')
 });
 
-export const NotificationModal = ({car, notification, open, closeModal}) => {
+export const NotificationModal = ({notification, open, closeModal}) => {
 
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
@@ -55,7 +56,8 @@ export const NotificationModal = ({car, notification, open, closeModal}) => {
         },
         validationSchema: validationSchema,
         onSubmit: (values) => {
-            const body = { ...values, car_id: car.id }
+            const tokenData = jwtDecode(accessToken)
+            const body = { ...values, car_id: tokenData?.user?.car_id }
             if(!notification?.id) {
                 createNotification(body, accessToken).then(data => {
                     navigate(0); //recargo la pagina para que actualice el render del auto

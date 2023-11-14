@@ -19,7 +19,6 @@ import {StatusAlert} from "./StatusAlert";
 import {CarModalForm} from "./CarModalForm";
 import {getIconByCode} from "../../utils/MaintenanceItemsUtils";
 import {TripButton} from "./TripButton";
-import {useUserLogged} from "../context/UserLogged";
 import {jwtDecode} from "jwt-decode";
 import {redirect} from "react-router-dom";
 
@@ -109,9 +108,9 @@ export const CarPage = (props) => {
     }, [])
 
     const getMaintenanceData = () => {
-        return car?.maintenance_values.map(car_item => {
-            return { ...car_item, component: getIconByCode(car_item.code) }
-        }) || []
+        return car?.maintenance_values.map(car_item => (
+            { ...car_item, component: getIconByCode(car_item.code) }
+        )) || []
     }
 
     const openAlert = (status) => {
