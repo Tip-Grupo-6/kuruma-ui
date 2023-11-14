@@ -60,6 +60,11 @@ export const updateCar = async (id, car, accessToken) => {
         body: JSON.stringify(car)
     })
     return await response.json()
+    // return axios.put(url, car, {
+    //     headers: {
+    //         'Authorization': `Bearer ${accessToken}`
+    //     }
+    // })
 }
 
 export const patchCar = async (id, car, accessToken) => {

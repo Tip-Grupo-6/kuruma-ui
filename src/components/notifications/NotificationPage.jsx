@@ -1,12 +1,12 @@
+import React, {useEffect, useState} from "react";
 import {makeStyles} from "@material-ui/core/styles";
 import {Button, Card, CardContent} from "@mui/material";
-import React, {useEffect, useState} from "react";
 import {NotificationModal} from "./NotificationModal";
 import {ConfirmModal} from "../modal/ConfirmModal";
 import Typography from "@mui/material/Typography";
 import {deleteNotification, fetchNotifications} from "../../services/NotificationService";
 import {getIconByCode} from "../../utils/MaintenanceItemsUtils";
-import {fetchCarById} from "../../services/CarService";
+import {fetchMaintenanceItems} from "../../services/CarService";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import {useNavigate} from "react-router-dom";
@@ -84,43 +84,38 @@ export const NotificationPage = () => {
     const [openModal, setOpenModal] = useState(false)
     const [openConfirmModal, setOpenConfirmModal] = useState(false)
     const [notifications, setNotifications] = useState([])
-    const [car, setCar] = useState(null)
-    const id = 1
+    const [maintenanceItems, setMaintenanceItems] = useState([])
     const navigate = useNavigate();
     const [notificationSelected, setNotificationSelected] = useState(null)
     const accessToken = localStorage.getItem("accessToken")
 
     useEffect(() => {
-        if(!id) {
-            setCar(null)
-        }
-        if(id) {
-            fetchCarById(id, accessToken).then(data => {
-                if(!data.status) {
-                    setCar(data)
-                }
-            }).catch(e => console.log(e))
-        }
-    }, [id])
-
-    useEffect(() => {
-        if(car) {
-            fetchNotifications(car.id, accessToken)
+        const tokenData = jwtDecode(accessToken)
+        const carId = tokenData?.user?.car_id
+        if(carId) {
+            fetchNotifications(carId, accessToken)
                 .then(data => setNotifications(data))
                 .catch(e => console.log(e))
         }
-    }, [car])
+    }, [])
+
+    useEffect(() => {
+        fetchMaintenanceItems(accessToken).then(data => {
+            setMaintenanceItems(data)
+        })
+        .catch((e) => console.log(e))
+    }, [])
 
     const openFormModal = () => setOpenModal(true)
 
     const getIconForItem = (notification) => {
-        const maintenanceItem = car.maintenance_values?.find(maintenanceItem => maintenanceItem.id === notification.maintenance_item_id)
-        return getIconByCode(maintenanceItem.code)
+        const maintenanceItem = maintenanceItems?.find(maintenanceItem => maintenanceItem.id === notification.maintenance_item_id)
+        return getIconByCode(maintenanceItem?.code || '')
     }
 
     const getDescriptionForItem = (notification) => {
-        const maintenanceItem = car.maintenance_values?.find(maintenanceItem => maintenanceItem.id === notification.maintenance_item_id)
-        return maintenanceItem.name
+        const maintenanceItem = maintenanceItems?.find(maintenanceItem => maintenanceItem.id === notification.maintenance_item_id)
+        return maintenanceItem?.description
     }
 
     const editNotification = (notification) => {
@@ -152,7 +147,7 @@ export const NotificationPage = () => {
                     Nuevo
                 </Button>
             </div>
-            <NotificationModal car={car} notification={notificationSelected} open={openModal} closeModal={closeModal} />
+            <NotificationModal notification={notificationSelected} open={openModal} closeModal={closeModal} />
             <ConfirmModal open={openConfirmModal} onClose={() => setOpenConfirmModal(false)}
                           onConfirm={confirmDelete}
                           title={'¿Desea borrar la notificación?'}

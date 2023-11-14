@@ -99,8 +99,8 @@ export const LoginPage = () => {
         validationSchema: validationSchema,
         onSubmit: (values) => {
             login({username: values.email, password: values.password})
-                .then((data) => {
-                    userLogged(data.token)
+                .then((response) => {
+                    userLogged(response.data.token)
                     navigate("/")
                 })
                 .catch(() => setErrorLogin(true))

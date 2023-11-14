@@ -57,6 +57,7 @@ export const TripButton = ({car}) => {
     const [openModalStartTrip, setOpenModalStartTrip] = useState(false)
     const navigate = useNavigate();
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
+    const accessToken = localStorage.getItem("accessToken")
 
     useEffect(() => {
         const onTrip = localStorage.getItem("onTrip");
@@ -140,7 +141,7 @@ export const TripButton = ({car}) => {
     const patchKilometers = () => {
         setOpenModal(false)
         const kilometersTraveled = Number(car.kilometers) + kilometers
-        patchCar(car.id, { kilometers: kilometersTraveled })
+        patchCar(car.id, { kilometers: kilometersTraveled }, accessToken)
             .then(() => navigate(0)) //recargo la pagina para que actualice el render del auto
     }
 

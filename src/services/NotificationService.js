@@ -37,10 +37,13 @@ export const updateNotification = async (id, notification, accessToken) => {
     return await response.json()
 }
 
-export const deleteNotification = async (id) => {
+export const deleteNotification = async (id, accessToken) => {
     const url = `${URL}/notifications/${id}`
     return await fetch(url, {
         method: 'DELETE',
-        headers: {'Content-Type':'application/json'}
+        headers: {
+            'Content-Type':'application/json',
+            'Authorization': `Bearer ${accessToken}`
+        }
     })
 }

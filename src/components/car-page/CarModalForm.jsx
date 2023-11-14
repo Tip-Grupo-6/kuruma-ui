@@ -135,13 +135,11 @@ export const CarModalForm = ({car, open, closeModal, onCreation}) => {
     }, [car])
 
     useEffect(() => {
-        if(open && maintenanceItems.length === 0) {
-            fetchMaintenanceItems(accessToken).then(data => {
-                setMaintenanceItems(data)
-            })
-            .catch((e) => console.log(e))
-        }
-    }, [open])
+        fetchMaintenanceItems(accessToken).then(data => {
+            setMaintenanceItems(data)
+        })
+        .catch((e) => console.log(e))
+    }, [])
 
     const convertData = () => {
         return maintenanceItems.map(item => (
