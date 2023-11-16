@@ -11,6 +11,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import {useNavigate} from "react-router-dom";
 import {jwtDecode} from "jwt-decode";
+// import {sendNotification} from "../../services/webpush";
 
 const styles = makeStyles(theme => ({
     card: {
@@ -139,6 +140,16 @@ export const NotificationPage = () => {
         setOpenConfirmModal(false)
     }
 
+    const suscribe = async () => {
+        let sw = await navigator.serviceWorker.ready;
+        let push = await sw.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey:
+                'BB_54eE5xN6sw3AsPj4Wz7OlyEeX5qbBoZxgM5lvahdu2VIPIJLzKXq0xBUt4N4LtCQyH72xD6oHkhJ5_7-CLGg'
+        });
+        console.log(JSON.stringify(push));
+    }
+
     return (
         <div className={classes.card}>
             <h2 className={classes.title}>Notificaciones</h2>
@@ -146,6 +157,12 @@ export const NotificationPage = () => {
                 <Button variant="outlined" onClick={openFormModal} className={classes.button}>
                     Nuevo
                 </Button>
+                <Button variant="outlined" onClick={suscribe} className={classes.button}>
+                    Suscribir
+                </Button>
+                {/*<Button variant="outlined" onClick={sendNotification} className={classes.button}>*/}
+                {/*    Check Suscripcion*/}
+                {/*</Button>*/}
             </div>
             <NotificationModal notification={notificationSelected} open={openModal} closeModal={closeModal} />
             <ConfirmModal open={openConfirmModal} onClose={() => setOpenConfirmModal(false)}
