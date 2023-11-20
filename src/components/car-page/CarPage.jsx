@@ -97,7 +97,7 @@ export const CarPage = (props) => {
 
     useEffect(() => {
         const tokenData = jwtDecode(accessToken)
-        const carId = tokenData?.user?.car_id || car.id
+        const carId = tokenData?.user?.car_id || car?.id
         if(carId) {
             fetchCarById(tokenData.user.car_id, accessToken).then(data => {
                 if(!data.status) {

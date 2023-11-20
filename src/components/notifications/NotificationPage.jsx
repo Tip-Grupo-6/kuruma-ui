@@ -11,6 +11,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import {useNavigate} from "react-router-dom";
 import {jwtDecode} from "jwt-decode";
+import {NotificationConfigurationSideSheet} from "./NotificationConfigurationSideSheet";
 
 const styles = makeStyles(theme => ({
     card: {
@@ -28,16 +29,20 @@ const styles = makeStyles(theme => ({
         fontFamily: 'Altone Trial, Raleway, sans-serif',
         marginBottom: 0
     },
-    flexRight: {
-      display: 'flex',
-      justifyContent: 'right'
+    buttonsFlexRight: {
+        display: 'block',
+        [theme.breakpoints.up("sm")]: {
+            display: 'flex',
+            justifyContent: 'right'
+        }
     },
     button: {
         marginBottom: '5px !important',
-        width: "100%",
+        width: "100% !important",
         display: 'block',
         [theme.breakpoints.up("sm")]: {
-            width: '180px'
+            width: '180px !important',
+            margin: '0 5px !important'
         }
     },
     notificationList: {
@@ -88,6 +93,7 @@ export const NotificationPage = () => {
     const navigate = useNavigate();
     const [notificationSelected, setNotificationSelected] = useState(null)
     const accessToken = localStorage.getItem("accessToken")
+    const [openConfig, setOpenConfig] = useState(false)
 
     useEffect(() => {
         const tokenData = jwtDecode(accessToken)
@@ -139,15 +145,25 @@ export const NotificationPage = () => {
         setOpenConfirmModal(false)
     }
 
+
     return (
         <div className={classes.card}>
             <h2 className={classes.title}>Notificaciones</h2>
-            <div className={classes.flexRight}>
+            <div className={classes.buttonsFlexRight}>
                 <Button variant="outlined" onClick={openFormModal} className={classes.button}>
                     Nuevo
                 </Button>
+                <Button variant="outlined" className={classes.button}
+                        onClick={() => setOpenConfig(true)}>
+                    Configuración
+                </Button>
             </div>
+            <NotificationConfigurationSideSheet
+                open={openConfig}
+                onClose={() => setOpenConfig(false)}/>
+
             <NotificationModal notification={notificationSelected} open={openModal} closeModal={closeModal} />
+
             <ConfirmModal open={openConfirmModal} onClose={() => setOpenConfirmModal(false)}
                           onConfirm={confirmDelete}
                           title={'¿Desea borrar la notificación?'}

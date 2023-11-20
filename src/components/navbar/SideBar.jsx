@@ -15,10 +15,8 @@ export const SideBar = ({open, onClose}) => {
             onClose={onClose}
         >
             <Box
-                sx={{ width: "left" === 'top' || "left" === 'bottom' ? 'auto' : 250 }}
+                sx={{ width: 250 }}
                 role="presentation"
-                onClick={() => console.log("click menu")}
-                onKeyDown={() => console.log("key down menu")}
             >
                 <List>
                     <ListItem key={"Tu auto"} disablePadding>

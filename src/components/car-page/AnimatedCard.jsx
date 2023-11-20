@@ -264,12 +264,14 @@ export const AnimatedCard = ({car}) => {
 
     function onWindowResize() {
         const container = document.getElementById('animated-card')
-        const parentWidth = container.parentElement.getBoundingClientRect().width
-        const parentHeight = container.parentElement.getBoundingClientRect().height
+        if(container) {
+            const parentWidth = container.parentElement.getBoundingClientRect().width
+            const parentHeight = container.parentElement.getBoundingClientRect().height
 
-        camera.aspect = parentWidth / (parentHeight - 200);
-        camera.updateProjectionMatrix();
-        renderer.setSize(parentWidth - 50, parentHeight - 50);
+            camera.aspect = parentWidth / (parentHeight - 200);
+            camera.updateProjectionMatrix();
+            renderer.setSize(parentWidth - 50, parentHeight - 50);
+        }
     }
 
     function render() {
