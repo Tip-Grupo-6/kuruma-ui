@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from "react";
+import {jwtDecode} from "jwt-decode";
 
 export const UserLoggedContext = React.createContext({
     isUserLogged: false,
@@ -28,12 +29,18 @@ export const UserLoggedProvider = ({children}) => {
         setAccessToken(token)
         setIsLogged(true)
         localStorage.setItem("accessToken", token)
+        const tokenData = jwtDecode(token)
+        const carId = tokenData?.user?.car_id
+        if(carId) {
+            localStorage.setItem("car_id", carId)
+        }
     }
 
     const setUserLogout = () => {
         setAccessToken(null)
         setIsLogged(false)
         localStorage.removeItem("accessToken")
+        localStorage.removeItem("car_id")
     }
 
     return (
