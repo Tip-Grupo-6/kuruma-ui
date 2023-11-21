@@ -20,7 +20,6 @@ import {CarModalForm} from "./CarModalForm";
 import {getIconByCode} from "../../utils/MaintenanceItemsUtils";
 import {TripButton} from "./TripButton";
 import {jwtDecode} from "jwt-decode";
-import {redirect} from "react-router-dom";
 
 
 const styles = makeStyles(theme => ({
@@ -94,15 +93,14 @@ export const CarPage = (props) => {
     const [openModal, setOpenModal] = React.useState(false);
     const [maintenanceItemSelected, setMaintenanceItemSelected] = useState(null)
     const accessToken = localStorage.getItem("accessToken")
+    const carIdFromLocalStorage = Number(localStorage.getItem("car_id"))
 
     useEffect(() => {
         const tokenData = jwtDecode(accessToken)
-        const carId = tokenData?.user?.car_id || car?.id
+        const carId = tokenData?.user?.car_id || carIdFromLocalStorage
         if(carId) {
-            fetchCarById(tokenData.user.car_id, accessToken).then(data => {
-                if(!data.status) {
-                    setCar(data)
-                }
+            fetchCarById(carId, accessToken).then(response => {
+                setCar(response.data)
             }).catch(e => console.log(e))
         }
     }, [])
@@ -141,12 +139,8 @@ export const CarPage = (props) => {
     }
 
     const onCarCreation = (id) => {
-        fetchCarById(id, accessToken).then(data => {
-            if(!data.status) {
-                setCar(data)
-                redirect(0) // redirecciono
-            }
-        }).catch(e => console.log(e))
+        localStorage.setItem("car_id", id)
+        window.location.reload()
     }
 
 

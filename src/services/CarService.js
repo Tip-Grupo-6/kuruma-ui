@@ -1,103 +1,77 @@
 import {URL} from './ApiServiceConstant'
-import axios from "axios";
+import apiClient from "./ApiClient";
 
 export const fetchCars = async (accessToken) => {
     const url = `${URL}/cars`
-    const response = await fetch(url, {
-        method: 'GET',
+    return apiClient.get(url, {
         headers: {
             'Authorization': `Bearer ${accessToken}`
         }
     })
-    return await response.json()
 }
 
 export const fetchCarById = async (id, accessToken) => {
     const url = `${URL}/cars/${id}`
-
-    const response = await fetch(url, {
-        method: 'GET',
+    return apiClient.get(url, {
         headers: {
-            'Authorization': `Bearer ${accessToken}`,
-            'Access-Control-Allow-Origin': '*',
+            'Authorization': `Bearer ${accessToken}`
         }
     })
-    return await response.json()
 }
 
 export const fetchMaintenanceItems = async (accessToken) => {
     const url = `${URL}/maintenance_items`
-    const response = await fetch(url, {
-        method: 'GET',
+    return apiClient.get(url, {
         headers: {
             'Authorization': `Bearer ${accessToken}`
         }
     })
-    return await response.json()
 }
 
 export const createCar = async (car, accessToken) => {
     const url = `${URL}/cars`
-    const response = await fetch(url, {
-        method: 'POST',
+    return apiClient.post(url, car, {
         headers: {
             'Content-Type':'application/json',
             'Authorization': `Bearer ${accessToken}`
-        },
-        body: JSON.stringify(car)
+        }
     })
-    return await response.json()
 }
 
 export const updateCar = async (id, car, accessToken) => {
     const url = `${URL}/cars/${id}`
-    const response = await fetch(url, {
-        method: 'PUT',
+    return apiClient.put(url, car, {
         headers: {
             'Content-Type':'application/json',
             'Authorization': `Bearer ${accessToken}`
-        },
-        body: JSON.stringify(car)
+        }
     })
-    return await response.json()
-    // return axios.put(url, car, {
-    //     headers: {
-    //         'Authorization': `Bearer ${accessToken}`
-    //     }
-    // })
 }
 
 export const patchCar = async (id, car, accessToken) => {
     const url = `${URL}/cars/${id}`
-    const response = await fetch(url, {
-        method: 'PATCH',
+    return apiClient.patch(url, car, {
         headers: {
             'Content-Type':'application/json',
             'Authorization': `Bearer ${accessToken}`
         },
-        body: JSON.stringify(car)
     })
-    return await response.json()
 }
 
 export const findBrands = async (year, accessToken) => {
     const url = `${URL}/v2/car_data/makes?year=${year}`
-    const response = await fetch(url, {
-        method: 'GET',
+    return apiClient.get(url, {
         headers: {
             'Authorization': `Bearer ${accessToken}`
-        },
+        }
     })
-    return await response.json()
 }
 
 export const findModels = async (year, brand, accessToken) => {
     const url = `${URL}/v2/car_data/models?year=${year}&make_id=${brand}`
-    const response = await fetch(url, {
-        method: 'GET',
+    return apiClient.get(url, {
         headers: {
             'Authorization': `Bearer ${accessToken}`
-        },
+        }
     })
-    return await response.json()
 }

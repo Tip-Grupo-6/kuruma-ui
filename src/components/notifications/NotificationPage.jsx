@@ -97,17 +97,17 @@ export const NotificationPage = () => {
 
     useEffect(() => {
         const tokenData = jwtDecode(accessToken)
-        const carId = tokenData?.user?.car_id
+        const carId = tokenData?.user?.car_id || Number(localStorage.getItem("car_id"))
         if(carId) {
             fetchNotifications(carId, accessToken)
-                .then(data => setNotifications(data))
+                .then(response => setNotifications(response.data))
                 .catch(e => console.log(e))
         }
     }, [])
 
     useEffect(() => {
-        fetchMaintenanceItems(accessToken).then(data => {
-            setMaintenanceItems(data)
+        fetchMaintenanceItems(accessToken).then(response => {
+            setMaintenanceItems(response.data)
         })
         .catch((e) => console.log(e))
     }, [])

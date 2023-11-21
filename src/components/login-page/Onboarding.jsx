@@ -96,7 +96,7 @@ export const OnboardingPage = () => {
         onSubmit: (values) => {
             onboarding(values)
                 .then(() => navigate("/login"))
-            console.log(values)
+                .catch((e) => console.log("Error on registration: ", e))
         },
     });
 

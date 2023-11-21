@@ -104,13 +104,13 @@ export const CarModalForm = ({car, open, closeModal, onCreation}) => {
             const tokenData = jwtDecode(accessToken)
             const body = {...values, user_id: tokenData?.user.user_id}
             if(!car?.id) {
-                createCar(body, accessToken).then(data => {
-                    onCreation(data.id)
+                createCar(body, accessToken).then(response => {
+                    onCreation(response.data.id)
                     closeModal()
                 });
             } else {
                 updateCar(car.id, body, accessToken).then(() => {
-                    navigate(0); //recargo la pagina para que actualice el render del auto
+                    window.location.reload()
                 })
             }
         },
@@ -135,8 +135,8 @@ export const CarModalForm = ({car, open, closeModal, onCreation}) => {
     }, [car])
 
     useEffect(() => {
-        fetchMaintenanceItems(accessToken).then(data => {
-            setMaintenanceItems(data)
+        fetchMaintenanceItems(accessToken).then(response => {
+            setMaintenanceItems(response.data)
         })
         .catch((e) => console.log(e))
     }, [])
@@ -202,8 +202,8 @@ export const CarModalForm = ({car, open, closeModal, onCreation}) => {
 
     const fetchBrands = (year) => {
         setLoadingBrands(true)
-        findBrands(year, accessToken).then(data => {
-            setBrands(data.map(brand => ({value: brand.id, label: brand.description})))
+        findBrands(year, accessToken).then(response => {
+            setBrands(response.data.map(brand => ({value: brand.id, label: brand.description})))
         })
         .catch(e => console.log(e))
         .finally(() => setLoadingBrands(false))
@@ -213,8 +213,8 @@ export const CarModalForm = ({car, open, closeModal, onCreation}) => {
         formik.setFieldValue(`brand`, optionSelected.label)
         setModels([])
         setLoadingModels(true)
-        findModels(formik.values.year, optionSelected.value, accessToken).then(data => {
-            setModels(data.map(brand => ({value: brand.description, label: brand.description})))
+        findModels(formik.values.year, optionSelected.value, accessToken).then(response => {
+            setModels(response.data.map(brand => ({value: brand.description, label: brand.description})))
         })
         .catch(e => console.log(e))
         .finally(() => setLoadingModels(false))

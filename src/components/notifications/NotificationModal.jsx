@@ -57,7 +57,8 @@ export const NotificationModal = ({notification, open, closeModal}) => {
         validationSchema: validationSchema,
         onSubmit: (values) => {
             const tokenData = jwtDecode(accessToken)
-            const body = { ...values, car_id: tokenData?.user?.car_id }
+            const carId = tokenData?.user?.car_id || localStorage.getItem("car_id")
+            const body = { ...values, car_id: carId, user_id: tokenData?.user?.user_id }
             if(!notification?.id) {
                 createNotification(body, accessToken).then(data => {
                     navigate(0); //recargo la pagina para que actualice el render del auto
