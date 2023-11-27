@@ -15,6 +15,7 @@ import {InputLabel} from "../form-fields/InputLabel";
 import {makeStyles} from "@material-ui/core/styles";
 import {patchCar} from "../../services/CarService";
 import {useNavigate} from "react-router-dom";
+import {Map} from "../maps/Map";
 
 const styles = makeStyles(theme => ({
     iconCircularProgress: {
@@ -117,8 +118,8 @@ export const TripButton = ({car}) => {
                 setTrip(prevState => ({
                     ...prevState,
                     end: {
-                        latitude: position.coords.latitude,
-                        longitude: (position.coords.longitude + 1)
+                        latitude: position.coords.latitude - 0.05,
+                        longitude: (position.coords.longitude - 0.05)
                     }
                 }))
             })
@@ -208,6 +209,7 @@ export const TripButton = ({car}) => {
                                 value={kilometers}
                                 onChange={updateKilometers}
                     />
+                    <Map startLocation={trip?.start} endLocation={trip?.end}/>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={patchKilometers} autoFocus>
