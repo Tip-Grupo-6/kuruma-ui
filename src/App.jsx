@@ -14,6 +14,7 @@ import {OnboardingPage} from "./components/login-page/Onboarding";
 import {UserLoggedProvider} from "./components/context/UserLoggedContext";
 import {PrivateRoute} from "./components/routes/PrivateRoute";
 import {PublicRoute} from "./components/routes/PublicRoute";
+import {CarInfoPage} from "./components/info-page/CarInfoPage";
 
 
 const App = () => {
@@ -42,6 +43,14 @@ const App = () => {
                             <>
                                 <Navbar />
                                 <NotificationPage />
+                            </>
+                        } />
+                    </Route>
+                    <Route path={"/informacion-de-auto"} element={<PrivateRoute />}>
+                        <Route path={"/informacion-de-auto"} element={
+                            <>
+                                <Navbar />
+                                <CarInfoPage />
                             </>
                         } />
                     </Route>

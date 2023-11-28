@@ -9,7 +9,6 @@ import {createCar, fetchMaintenanceItems, findBrands, findModels, updateCar} fro
 import {CustomSelect} from "../form-fields/CustomSelect";
 import {InputLabel} from "../form-fields/InputLabel";
 import {makeStyles} from "@material-ui/core/styles";
-import { useNavigate } from "react-router-dom";
 import {DatePicker, LocalizationProvider} from "@mui/x-date-pickers";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import 'dayjs/locale/es';
@@ -87,7 +86,6 @@ export const CarModalForm = ({car, open, closeModal, onCreation}) => {
     const [models, setModels] = useState([])
     const [loadingBrands, setLoadingBrands] = useState(false)
     const [loadingModels, setLoadingModels] = useState(false)
-    const navigate = useNavigate();
     const accessToken = localStorage.getItem("accessToken")
 
     const formik = useFormik({
@@ -281,6 +279,7 @@ export const CarModalForm = ({car, open, closeModal, onCreation}) => {
                                 defaultValue={getYearSelected()}
                                 errorMessage={formik.touched.year && Boolean(formik.errors.year)}
                                 helperText={formik.touched.year && formik.errors.year}
+                                searchable
                             />
                             {/*<InputLabel id={'input-year'} label={"Año *"} name={'year'}*/}
                             {/*            value={formik.values.year}*/}
@@ -299,6 +298,7 @@ export const CarModalForm = ({car, open, closeModal, onCreation}) => {
                                 helperText={formik.touched.brand && formik.errors.brand}
                                 isDisabled={brands.length === 0}
                                 loading={loadingBrands}
+                                searchable
                             />
                             {/*<InputLabel id={'input-brand'} label={"Marca *"} name={'brand'}*/}
                             {/*            value={formik.values.brand}*/}
@@ -318,6 +318,7 @@ export const CarModalForm = ({car, open, closeModal, onCreation}) => {
                                 helperText={formik.touched.model && formik.errors.model}
                                 isDisabled={models.length === 0}
                                 loading={loadingModels}
+                                searchable
                             />
                             {/*<InputLabel id={'input-model'} label={"Modelo *"} name={'model'}*/}
                             {/*            value={formik.values.model}*/}
