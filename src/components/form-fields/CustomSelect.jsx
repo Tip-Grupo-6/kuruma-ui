@@ -2,7 +2,7 @@ import React from "react";
 import Select, {components} from 'react-select'
 import SingleValueDefault from "./CustomSelect/SingleValueDefault";
 import {makeStyles} from "@material-ui/core/styles";
-import {CircularProgress, Icon} from "@mui/material";
+import {CircularProgress} from "@mui/material";
 
 const customStyles = {
     control: (baseStyles, state) => ({
@@ -56,13 +56,21 @@ const customStyles = {
             justifyContent: 'center',
             alignItems: 'center',
         }
-    })
+    }),
 }
 
 const styles = makeStyles(theme => ({
     labelSelect: {
         padding: "4px 4px 4px 16px",
         display: "flex"
+    },
+    errorSelect: {
+        fontSize: '0.75rem',
+        color: '#d32f2f',
+        marginTop: "3px",
+        marginRight: "14px",
+        marginBottom: 0,
+        marginLeft: "14px"
     }
 }))
 
@@ -78,16 +86,17 @@ const DropdownIndicator = ({ children, ...props }, loading) => {
 }
 
 export const CustomSelect = (props) => {
-    const { data, placeholder, label, name, singleValue, searchable, errorMessage, loading, ...rest } = props
+    const { data, placeholder, label, name, singleValue, searchable, errorMessage, helperText, loading, value, ...rest } = props
     const singleValueComponent = singleValue || SingleValueDefault
 
     const classes = styles()
 
 
     return (
-        <>
+        <div>
             <Select
                 name={name}
+                value={value}
                 options={data}
                 placeholder={placeholder}
                 styles={customStyles}
@@ -101,19 +110,12 @@ export const CustomSelect = (props) => {
                 menuPosition="fixed"
                 menuPortalTarget={document.body}
                 {...rest}
-            >
-            {errorMessage  && !props.value && (
-                <div className={classes.flexStart}>
-                    <Icon
-                        name='error_circle_outline'
-                        variant='danger'
-                        width={16}
-                        height={16}
-                    />
-                    <span type='4' variant={'danger'}>{errorMessage}</span>
-                </div>
+            />
+            {errorMessage && helperText && !value && (
+            <p className={classes.errorSelect}>
+                {helperText}
+            </p>
             )}
-            </Select>
-        </>
+        </div>
     )
 }

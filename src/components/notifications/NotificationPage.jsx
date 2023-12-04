@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {makeStyles} from "@material-ui/core/styles";
-import {Button, Card, CardContent} from "@mui/material";
+import {Button, Card, CardContent, Tooltip} from "@mui/material";
 import {NotificationModal} from "./NotificationModal";
 import {ConfirmModal} from "../modal/ConfirmModal";
 import Typography from "@mui/material/Typography";
@@ -96,8 +96,7 @@ export const NotificationPage = () => {
     const [openConfig, setOpenConfig] = useState(false)
 
     useEffect(() => {
-        const tokenData = jwtDecode(accessToken)
-        const carId = tokenData?.user?.car_id || Number(localStorage.getItem("car_id"))
+        const carId = getCarId()
         if(carId) {
             fetchNotifications(carId, accessToken)
                 .then(response => setNotifications(response.data))
@@ -111,6 +110,11 @@ export const NotificationPage = () => {
         })
         .catch((e) => console.log(e))
     }, [])
+
+    const getCarId = () => {
+        const tokenData = jwtDecode(accessToken)
+        return tokenData?.user?.car_id || Number(localStorage.getItem("car_id"))
+    }
 
     const openFormModal = () => setOpenModal(true)
 
@@ -149,14 +153,18 @@ export const NotificationPage = () => {
     return (
         <div className={classes.card}>
             <h2 className={classes.title}>Notificaciones</h2>
-            <div className={classes.buttonsFlexRight}>
-                <Button variant="outlined" onClick={openFormModal} className={classes.button}>
-                    Nuevo
-                </Button>
-                <Button variant="outlined" className={classes.button}
-                        onClick={() => setOpenConfig(true)}>
-                    Configuración
-                </Button>
+            <div style={{display: "flex", justifyContent: `${getCarId() ? 'flex-end' : 'space-between'}`}}>
+                {!getCarId() && (
+                <h4>Debes crear un auto para utilizar las notificaciones</h4>
+                )}
+                <div className={classes.buttonsFlexRight}>
+                    <Button variant="outlined" onClick={openFormModal} className={classes.button} disabled={!getCarId()}>
+                        Nuevo
+                    </Button>
+                    <Button variant="outlined" className={classes.button} onClick={() => setOpenConfig(true)} disabled={!getCarId()}>
+                        Configuración
+                    </Button>
+                </div>
             </div>
             <NotificationConfigurationSideSheet
                 open={openConfig}

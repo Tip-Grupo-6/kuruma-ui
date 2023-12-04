@@ -71,10 +71,12 @@ export const NotificationConfigurationSideSheet = ({open, onClose}) => {
     }
 
     const checkIsSubscribed = async () => {
-        let sw = await navigator.serviceWorker.ready;
-        const subscription = await sw.pushManager.getSubscription()
-        setEnabled(subscription?.endpoint !== undefined)
-        console.log('is subscribed: ', subscription?.endpoint !== undefined)
+        if ('serviceWorker' in navigator || navigator.serviceWorker) {
+            let sw = await navigator.serviceWorker.ready;
+            const subscription = await sw.pushManager.getSubscription()
+            setEnabled(subscription?.endpoint !== undefined)
+            console.log('is subscribed: ', subscription?.endpoint !== undefined)
+        }
     }
 
     const addSubscription = async () => {
