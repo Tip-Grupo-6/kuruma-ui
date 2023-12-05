@@ -47,7 +47,8 @@ export const StatusAlert = ({status, open, onClose}) => {
                 }>
                     <AlertTitle>Chequeo de {status?.name}</AlertTitle>
                     Último chequeo: {status?.last_change}<br/>
-                    Próximo chequeo: {status?.next_change_due}
+                    Próximo chequeo: {status?.next_change_due}<br/>
+                    {status?.km_maintenance_messages}
                 </Alert>
             </Collapse>
         </Box>

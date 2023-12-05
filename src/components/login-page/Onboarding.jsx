@@ -6,6 +6,9 @@ import {InputLabel} from "../form-fields/InputLabel";
 import {Button} from "@mui/material";
 import {Link, useNavigate} from "react-router-dom";
 import {onboarding} from "../../services/UserService";
+import {useState} from "react";
+import {ConfirmModal} from "../modal/ConfirmModal";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 
 const styles = makeStyles(theme => ({
     container: {
@@ -59,7 +62,15 @@ const styles = makeStyles(theme => ({
         '& :visited': {
             color: 'rgb(10, 127, 228)'
         }
-    }
+    },
+    userCreated: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center'
+    },
+    iconSuccess: {
+        color: "green"
+    },
 }))
 
 const EMAIL_REGEX = /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/
@@ -86,6 +97,7 @@ export const OnboardingPage = () => {
 
     const navigate = useNavigate();
     const classes = styles()
+    const [openModal, setOpenModal] = useState(false)
     const formik = useFormik({
         initialValues: {
             name: '',
@@ -95,10 +107,22 @@ export const OnboardingPage = () => {
         validationSchema: validationSchema,
         onSubmit: (values) => {
             onboarding(values)
-                .then(() => navigate("/login"))
+                .then(() => openSuccessUserRegistration())
                 .catch((e) => console.log("Error on registration: ", e))
         },
     });
+
+    const openSuccessUserRegistration = () => {
+        setOpenModal(true)
+    }
+
+    const redirectToLogin = () => {
+        navigate("/login")
+    }
+
+    const userCreationTitle = () => (
+        <div className={classes.userCreated}>Usuario Creado <CheckCircleOutlineIcon className={classes.iconSuccess}/></div>
+    )
 
     return (
         <div className={classes.container}>
@@ -139,6 +163,12 @@ export const OnboardingPage = () => {
                     </Link>
                 </form>
             </div>
+
+            <ConfirmModal open={openModal}
+                          onConfirm={redirectToLogin}
+                          title={userCreationTitle()}
+                          message={'Clickee en aceptar para ir a la pantalla de iniciar sesión'}
+            />
         </div>
     )
 }

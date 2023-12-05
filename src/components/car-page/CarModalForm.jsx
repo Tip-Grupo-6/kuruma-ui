@@ -311,8 +311,8 @@ export const CarModalForm = ({car, open, closeModal, onCreation}) => {
                                 onChange={(value) => onChangeBrand(value)}
                                 value={formik?.values?.brand || ''}
                                 defaultValue={getBrandSelected()}
-                                errorMessage={formik.touched.brand || Boolean(formik.errors.brand)}
-                                helperText={formik.touched.brand || formik.errors.brand}
+                                errorMessage={formik.touched.brand && Boolean(formik.errors.brand)}
+                                helperText={formik.touched.brand && formik.errors.brand}
                                 isDisabled={brands.length === 0}
                                 loading={loadingBrands}
                                 searchable={isDesktop}
@@ -325,8 +325,8 @@ export const CarModalForm = ({car, open, closeModal, onCreation}) => {
                                 onChange={(value) => onChangeModel(value)}
                                 value={formik?.values?.model || ''}
                                 defaultValue={getModelSelected()}
-                                errorMessage={formik.touched.model || Boolean(formik.errors.model)}
-                                helperText={formik.touched.model || formik.errors.model}
+                                errorMessage={formik.touched.model && Boolean(formik.errors.model)}
+                                helperText={formik.touched.model && formik.errors.model}
                                 isDisabled={models.length === 0}
                                 loading={loadingModels}
                                 searchable={isDesktop}
@@ -372,6 +372,7 @@ export const CarModalForm = ({car, open, closeModal, onCreation}) => {
                                         slotProps={{
                                             textField: {
                                                 helperText: getMaintenanceValueError(index),
+                                                error: hasMaintenanceValueError(index)
                                             },
                                         }}
                                     />

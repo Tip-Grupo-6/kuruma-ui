@@ -40,6 +40,8 @@ export const CarInfoTable = ({models}) => {
                 return 'Pickup con cabina simple'
             case 'DoubleCabPickup':
                 return 'Pickup con doble cabina'
+            case 'LightUtility':
+                return 'Camioneta de carga ligera'
             default:
                 return category
         }
