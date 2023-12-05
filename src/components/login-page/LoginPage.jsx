@@ -103,7 +103,10 @@ export const LoginPage = () => {
                     userLogged(response.data.token)
                     navigate("/")
                 })
-                .catch(() => setErrorLogin(true))
+                .catch(() => {
+                    setErrorLogin(true)
+                    console.log("error en login")
+                })
         },
     });
 

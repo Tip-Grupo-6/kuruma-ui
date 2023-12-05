@@ -75,3 +75,12 @@ export const findModels = async (year, brand, accessToken) => {
         }
     })
 }
+
+export const findCarInfo = async (year, brand, model, accessToken) => {
+    const url = `${URL}/v2/car_data/model_details?year=${year}&make_id=${brand}&model_id=${model}`
+    return apiClient.get(url, {
+        headers: {
+            'Authorization': `Bearer ${accessToken}`
+        }
+    })
+}

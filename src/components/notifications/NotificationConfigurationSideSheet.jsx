@@ -1,6 +1,6 @@
 import {
     Alert,
-    AlertTitle, Button,
+    AlertTitle, Button, CircularProgress,
     Collapse,
     Drawer,
     Switch
@@ -57,6 +57,8 @@ export const NotificationConfigurationSideSheet = ({open, onClose}) => {
     const [enabled, setEnabled] = useState(false)
     const [openAlert, setOpenAlert] = useState(false)
     const [severityAlert, setSeverityAlert] = useState("success")
+    const [timeoutAlert, setTimeoutAlert] = useState(0)
+    const [loading, setLoading] = useState(false)
 
     useEffect(() => {
         checkIsSubscribed()
@@ -71,13 +73,16 @@ export const NotificationConfigurationSideSheet = ({open, onClose}) => {
     }
 
     const checkIsSubscribed = async () => {
-        let sw = await navigator.serviceWorker.ready;
-        const subscription = await sw.pushManager.getSubscription()
-        setEnabled(subscription?.endpoint !== undefined)
-        console.log('is subscribed: ', subscription?.endpoint !== undefined)
+        if ('serviceWorker' in navigator || navigator.serviceWorker) {
+            let sw = await navigator.serviceWorker.ready;
+            const subscription = await sw.pushManager.getSubscription()
+            setEnabled(subscription?.endpoint !== undefined)
+            console.log('is subscribed: ', subscription?.endpoint !== undefined)
+        }
     }
 
     const addSubscription = async () => {
+        setLoading(true)
         if (!'serviceWorker' in navigator || !navigator.serviceWorker) {
             return alert('Notificaciones push no disponible')
         }
@@ -104,16 +109,18 @@ export const NotificationConfigurationSideSheet = ({open, onClose}) => {
             })
             .then(() => {
                 closeConfigAndShowAlert()
+                setLoading(false)
             })
     }
 
     const removeSubscription = async () => {
+        setLoading(true)
         let sw = await navigator.serviceWorker.ready;
         const subscription = await sw.pushManager.getSubscription()
         if(!subscription) {
             setSeverityAlert("success")
-            onClose()
-            return setOpenAlert(true)
+            setLoading(false)
+            return closeConfigAndShowAlert()
         }
         const tokenData = jwtDecode(accessToken)
         const userId = tokenData?.user?.user_id
@@ -133,12 +140,17 @@ export const NotificationConfigurationSideSheet = ({open, onClose}) => {
             })
             .then(() => {
                 closeConfigAndShowAlert()
+                setLoading(false)
             })
     }
 
     const closeConfigAndShowAlert = () => {
         onClose()
         setOpenAlert(true)
+
+        if (timeoutAlert) clearTimeout(timeoutAlert)
+        const delay = setTimeout(handleClose, 2000)
+        setTimeoutAlert(delay)
     }
 
     const tryNotification = async () => {
@@ -178,8 +190,6 @@ export const NotificationConfigurationSideSheet = ({open, onClose}) => {
         setOpenAlert(false)
     }
 
-    setTimeout(handleClose, 2000)
-
     return (
         <>
             <Drawer
@@ -204,8 +214,9 @@ export const NotificationConfigurationSideSheet = ({open, onClose}) => {
                         <Button variant="outlined" className={classes.button} disabled={!enabled} onClick={tryNotification}>
                             Probar
                         </Button>
-                        <Button variant="outlined" className={classes.button} onClick={saveNotification} >
-                            Guardar
+                        <Button variant="outlined" className={classes.button} onClick={saveNotification} disabled={loading}>
+                            {loading && <>Guardando <CircularProgress style={{width: "24px", height: "24px", color: "rgb(100, 113, 128)", marginLeft: '10px'}}/></>}
+                            {!loading && <>Guardar</>}
                         </Button>
                     </div>
                 </Box>

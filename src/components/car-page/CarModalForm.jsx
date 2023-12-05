@@ -9,7 +9,6 @@ import {createCar, fetchMaintenanceItems, findBrands, findModels, updateCar} fro
 import {CustomSelect} from "../form-fields/CustomSelect";
 import {InputLabel} from "../form-fields/InputLabel";
 import {makeStyles} from "@material-ui/core/styles";
-import { useNavigate } from "react-router-dom";
 import {DatePicker, LocalizationProvider} from "@mui/x-date-pickers";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import 'dayjs/locale/es';
@@ -44,10 +43,10 @@ const styles = makeStyles(theme => ({
 
 const validationSchema = yup.object({
     brand: yup
-        .string('Marca')
+        .object()
         .required('La marca es requerida'),
     model: yup
-        .string('Modelo')
+        .object()
         .required('El modelo es requerido'),
     year: yup
         .string('Año')
@@ -87,7 +86,8 @@ export const CarModalForm = ({car, open, closeModal, onCreation}) => {
     const [models, setModels] = useState([])
     const [loadingBrands, setLoadingBrands] = useState(false)
     const [loadingModels, setLoadingModels] = useState(false)
-    const navigate = useNavigate();
+    const [width, setWidth] = useState(window.innerWidth);
+    const [minDateByYear, setMinDateByYear] = useState(dayjs('1994-01-01'))
     const accessToken = localStorage.getItem("accessToken")
 
     const formik = useFormik({
@@ -102,7 +102,15 @@ export const CarModalForm = ({car, open, closeModal, onCreation}) => {
         validationSchema: validationSchema,
         onSubmit: (values) => {
             const tokenData = jwtDecode(accessToken)
-            const body = {...values, user_id: tokenData?.user.user_id}
+            const body = {
+                brand: values.brand.label,
+                model: values.model.label,
+                year: values.year,
+                color: values.color,
+                kilometers: values.kilometers,
+                user_id: tokenData?.user.user_id,
+                maintenance_values: values.maintenance_values
+            }
             if(!car?.id) {
                 createCar(body, accessToken).then(response => {
                     onCreation(response.data.id)
@@ -118,7 +126,7 @@ export const CarModalForm = ({car, open, closeModal, onCreation}) => {
 
     useEffect(() => {
         if(car) {
-            fetchBrands(car.year)
+            setMinDateByYear(dayjs(`${car.year}-01-01`))
             formik.setValues(
                 {
                     brand: car.brand,
@@ -131,6 +139,13 @@ export const CarModalForm = ({car, open, closeModal, onCreation}) => {
                     ))
                 }
             )
+            fetchBrands(car.year, (brands) => {
+                const brand = brands.find(brand => brand.description.toUpperCase() === car.brand.toUpperCase())
+                onChangeBrand({value: brand.id, label: brand.description}, car.year, (models) => {
+                    const model = models.find(model => model.description.toUpperCase() === car.model.toUpperCase())
+                    formik.setFieldValue(`model`, {value: model.description, label: model.description})
+                })
+            })
         }
     }, [car])
 
@@ -196,32 +211,37 @@ export const CarModalForm = ({car, open, closeModal, onCreation}) => {
         formik.setFieldValue(`model`, null)
         setBrands([])
         setModels([])
+        setMinDateByYear(dayjs(`${optionSelected.value}-01-01`))
 
         fetchBrands(optionSelected.value)
     }
 
-    const fetchBrands = (year) => {
+    const fetchBrands = (year, callback = () => {}) => {
         setLoadingBrands(true)
         findBrands(year, accessToken).then(response => {
-            setBrands(response.data.map(brand => ({value: brand.id, label: brand.description})))
+            const brandList = response.data
+            setBrands(brandList.map(brand => ({value: brand.id, label: brand.description})))
+            callback(brandList)
         })
         .catch(e => console.log(e))
         .finally(() => setLoadingBrands(false))
     }
 
-    const onChangeBrand = (optionSelected) => {
-        formik.setFieldValue(`brand`, optionSelected.label)
+    const onChangeBrand = (optionSelected, yearDefault, callback) => {
+        formik.setFieldValue(`brand`, optionSelected)
+        formik.setFieldValue(`model`, null)
         setModels([])
         setLoadingModels(true)
-        findModels(formik.values.year, optionSelected.value, accessToken).then(response => {
-            setModels(response.data.map(brand => ({value: brand.description, label: brand.description})))
+        findModels(formik.values.year || yearDefault, optionSelected.value, accessToken).then(response => {
+            setModels(response.data.map(model => ({value: model.description, label: model.description})))
+            callback(response.data)
         })
         .catch(e => console.log(e))
         .finally(() => setLoadingModels(false))
     }
 
     const onChangeModel = (optionSelected) => {
-        formik.setFieldValue(`model`, optionSelected.value)
+        formik.setFieldValue(`model`, optionSelected)
     }
 
     const getYearSelected = () => {
@@ -244,7 +264,7 @@ export const CarModalForm = ({car, open, closeModal, onCreation}) => {
         return null
     }
 
-
+    const isDesktop = width > 768
 
     return (
         <BootstrapDialog
@@ -281,50 +301,36 @@ export const CarModalForm = ({car, open, closeModal, onCreation}) => {
                                 defaultValue={getYearSelected()}
                                 errorMessage={formik.touched.year && Boolean(formik.errors.year)}
                                 helperText={formik.touched.year && formik.errors.year}
+                                searchable={isDesktop}
                             />
-                            {/*<InputLabel id={'input-year'} label={"Año *"} name={'year'}*/}
-                            {/*            value={formik.values.year}*/}
-                            {/*            onChange={formik.handleChange}*/}
-                            {/*            onBlur={formik.handleBlur}*/}
-                            {/*            error={formik.touched.year && Boolean(formik.errors.year)}*/}
-                            {/*            helperText={formik.touched.year && formik.errors.year} />*/}
 
                             <CustomSelect
                                 name={'brand'}
                                 placeholder={"Selecciona una Marca *"}
                                 data={brands}
                                 onChange={(value) => onChangeBrand(value)}
+                                value={formik?.values?.brand || ''}
                                 defaultValue={getBrandSelected()}
                                 errorMessage={formik.touched.brand && Boolean(formik.errors.brand)}
                                 helperText={formik.touched.brand && formik.errors.brand}
                                 isDisabled={brands.length === 0}
                                 loading={loadingBrands}
+                                searchable={isDesktop}
                             />
-                            {/*<InputLabel id={'input-brand'} label={"Marca *"} name={'brand'}*/}
-                            {/*            value={formik.values.brand}*/}
-                            {/*            onChange={formik.handleChange}*/}
-                            {/*            onBlur={formik.handleBlur}*/}
-                            {/*            error={formik.touched.brand && Boolean(formik.errors.brand)}*/}
-                            {/*            helperText={formik.touched.brand && formik.errors.brand} />*/}
-
 
                             <CustomSelect
                                 name={'model'}
-                                placeholder={"Selecciona una Modelo *"}
+                                placeholder={"Selecciona un Modelo *"}
                                 data={models}
                                 onChange={(value) => onChangeModel(value)}
+                                value={formik?.values?.model || ''}
                                 defaultValue={getModelSelected()}
                                 errorMessage={formik.touched.model && Boolean(formik.errors.model)}
                                 helperText={formik.touched.model && formik.errors.model}
                                 isDisabled={models.length === 0}
                                 loading={loadingModels}
+                                searchable={isDesktop}
                             />
-                            {/*<InputLabel id={'input-model'} label={"Modelo *"} name={'model'}*/}
-                            {/*            value={formik.values.model}*/}
-                            {/*            onChange={formik.handleChange}*/}
-                            {/*            onBlur={formik.handleBlur}*/}
-                            {/*            error={formik.touched.model && Boolean(formik.errors.model)}*/}
-                            {/*            helperText={formik.touched.model && formik.errors.model} />*/}
 
                             <InputLabel id={'input-kms'} label={"Kilometros *"} name={'kilometers'}
                                         value={formik.values.kilometers}
@@ -355,17 +361,20 @@ export const CarModalForm = ({car, open, closeModal, onCreation}) => {
                             {formik.values.maintenance_values.map((item, index) => (
                                 <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"es"} key={`input-last-change-${item.code}`} >
                                     <DatePicker id={`input-last-change-${item.code}`}
-                                                label={item.description}
-                                                format="DD-MM-YYYY"
-                                                value={getMaintenanceValueLastChange(index)}
-                                                onChange={(value) => onChangeMaintenanceValueLastChange(index, value)}
-                                                onBlur={formik.handleBlur}
-                                                error={() => hasMaintenanceValueError(index)}
-                                                slotProps={{
-                                                    textField: {
-                                                        helperText: getMaintenanceValueError(index),
-                                                    },
-                                                }}
+                                        label={item.description}
+                                        format="DD-MM-YYYY"
+                                        minDate={minDateByYear}
+                                        maxDate={dayjs()}
+                                        value={getMaintenanceValueLastChange(index)}
+                                        onChange={(value) => onChangeMaintenanceValueLastChange(index, value)}
+                                        onBlur={formik.handleBlur}
+                                        error={() => hasMaintenanceValueError(index)}
+                                        slotProps={{
+                                            textField: {
+                                                helperText: getMaintenanceValueError(index),
+                                                error: hasMaintenanceValueError(index)
+                                            },
+                                        }}
                                     />
                                 </LocalizationProvider>
                             ))}

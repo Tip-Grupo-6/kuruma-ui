@@ -11,7 +11,7 @@ import Menu from '@mui/material/Menu';
 import {makeStyles} from "@material-ui/core/styles";
 import {Link, useNavigate} from "react-router-dom";
 import {useState} from "react";
-import {SideBar} from "./SideBar";
+import {MenuSideBar} from "./MenuSideBar";
 import {useUserLogged} from "../context/UserLogged";
 
 const styles = makeStyles(theme => ({
@@ -125,7 +125,7 @@ export default function Navbar() {
                     </div>
                 </Toolbar>
             </AppBar>
-            <SideBar open={showMenu} onClose={() => setShowMenu(false)}/>
+            <MenuSideBar open={showMenu} onClose={() => setShowMenu(false)}/>
         </Box>
     );
 }

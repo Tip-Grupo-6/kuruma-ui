@@ -36,7 +36,7 @@ export const ConfirmModal = ({open, onClose, onConfirm, title, message}) => {
             </DialogContent>
             )}
             <DialogActions>
-                <Button onClick={onClose}>Cancelar</Button>
+                {onClose && <Button onClick={onClose}>Cancelar</Button>}
                 <Button onClick={onConfirm}>Aceptar</Button>
             </DialogActions>
         </BootstrapDialog>
